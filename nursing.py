@@ -12,14 +12,26 @@ load_dotenv()
 import mysql.connector
 
 con = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    password=os.getenv("DB_PASSWORD"),
-    database="nursingdb"
+  host="nursingdb.cav8g6cg8pxy.us-east-1.rds.amazonaws.com",
+  user="admin",
+  password=os.getenv("DB_PASSWORD"),
 )
-
 print("database ready")
 
+def check_db():
+    cursor=con.cursor()
+    cursor.execute("CREATE DATABASE IF NOT EXISTS nursingdb")
+    cursor.execute("USE nursingdb")
+    cursor.execute("CREATE TABLE IF NOT EXISTS `staff` ( `id` int NOT NULL AUTO_INCREMENT,`full_name` varchar(50) NOT NULL,`employee_num` varchar(20) NOT NULL,`password` varchar(255) NOT NULL,`role` enum('IT_Admin','Head_Nurse','Staff_Nurse') NOT NULL,`level` enum('N0','N1','N2','N3','N4') DEFAULT NULL,`ward` varchar(20) DEFAULT NULL,`join_date` datetime DEFAULT CURRENT_TIMESTAMP,`is_temp_password` tinyint(1) DEFAULT '1',PRIMARY KEY (`id`),UNIQUE KEY `employee_num` (`employee_num`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;")
+    cursor.execute("SELECT COUNT(*) FROM staff WHERE employee_num = 'ADM0001'")
+    if cursor.fetchone()[0] == 0:
+        cursor.execute("INSERT INTO staff (full_name, employee_num, password, role, is_temp_password) VALUES ('系統管理員', 'ADM0001', 'ADM0001', 'IT_Admin', 1)")
+        con.commit()
+        print("Initial admin account created.")
+
+    cursor.close()
+    print("Database and table 'staff' are ready.")
+check_db()
 
 app=FastAPI()
 
@@ -78,7 +90,7 @@ async def login(request:Request,body: dict = Body(...)):
 
     try:
         if result:
-            payload={"id":result[0],"full_name":result[1],"employee_num":result[2],"password":result[4], "exp": datetime.datetime.now(tz=timezone.utc) + datetime.timedelta(days=7)}
+            payload={"id":result[0],"full_name":result[1],"employee_num":result[2],"password":result[3], "exp": datetime.datetime.now(tz=timezone.utc) + datetime.timedelta(days=7)}
             token = jwt.encode(payload, os.getenv("SECRET_PASSWORD"), algorithm='HS256')
             return {"token": token}
         
@@ -122,7 +134,6 @@ async def staff(request: Request):
          
 @app.post("/api/staff")
 async def insertstaff(request: Request, body: dict = Body(...)):
-    print(f"DEBUG: 接收到的 body -> {body}")
 
     bearerToken = request.headers.get("Authorization")
     if not bearerToken:
@@ -168,7 +179,6 @@ async def insertstaff(request: Request, body: dict = Body(...)):
         )
     
     except Exception as e:
-            print(f"SQL 執行失敗: {str(e)}")
             return JSONResponse(
 				status_code=500,
 				content={
