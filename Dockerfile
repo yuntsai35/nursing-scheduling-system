@@ -14,4 +14,4 @@ RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 COPY . .
 
 
-CMD ["fastapi", "run", "stage3.py","--host", "0.0.0.0", "--port", "80"]
+CMD ["fastapi", "run", "nursing.py","--host", "0.0.0.0", "--port", "80"]
