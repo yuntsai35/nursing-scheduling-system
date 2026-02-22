@@ -1,0 +1,84 @@
+body{
+  font-family: "Chiron GoRound TC", sans-serif;
+  font-optical-sizing: auto;
+}
+.navbar.bg-body-tertiary {
+  background-color: #ffbb80 !important;
+}
+main{
+    display: flex; 
+    justify-content: center;
+}
+.main-container{
+    max-width: 1200px;
+    width: 100%;
+}
+.title{
+    font-size: 26px;
+    margin-top: 20px;
+}
+
+.main-input {
+    display: none;
+    position: fixed;      /* 固定在螢幕上，不隨捲軸移動；若要隨捲軸動可用 absolute */
+    top: 50%;             /* 距離頂部 50% */
+    left: 50%;            /* 距離左側 50% */
+    transform: translate(-50%, -50%); /* 關鍵：向左上偏移自身寬高的一半，達到真正置中 */
+    
+    width: 600px;
+    background: white;
+    padding: 30px;        /* 增加內距，視覺更舒適 */
+    border-radius: 8px;   /* 圓角讓視覺更現代 */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5); /* 加深陰影，增加層次感 */
+    
+    flex-direction: column;
+    gap: 15px; 
+    z-index: 999;         /* 確保它在所有元素（包括 Navbar）的最上方 */
+}
+#addStaff-btn{
+    margin-left: auto;
+    margin-bottom: 10px;
+    
+}
+.title-container {
+    display: flex;                /* 開啟彈性佈局 */
+    flex-direction: row;          /* 確保是橫向排列 (這是預設值) */
+    justify-content: space-between; /* 關鍵：把空間撐開，標題推到左，按鈕推到右 */
+    align-items: center;          /* 垂直置中對齊，畫面比較美觀 */
+    width: 100%;                  /* 確保容器寬度撐滿 1200px */
+    margin-top: 20px;             /* 稍微與上方導覽列留點距離 */
+}
+.main-input-title{
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.main-input-group{
+    display:flex;
+}
+.main-input-subtitle{
+    margin-right: 10px;
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+.insert-btn{
+    margin-top: 20px;
+    ;
+}
+.edit-input {
+    display: none;
+    position: fixed;      /* 固定在螢幕上，不隨捲軸移動；若要隨捲軸動可用 absolute */
+    top: 50%;             /* 距離頂部 50% */
+    left: 50%;            /* 距離左側 50% */
+    transform: translate(-50%, -50%); /* 關鍵：向左上偏移自身寬高的一半，達到真正置中 */
+    
+    width: 600px;
+    background: white;
+    padding: 30px;        /* 增加內距，視覺更舒適 */
+    border-radius: 8px;   /* 圓角讓視覺更現代 */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5); /* 加深陰影，增加層次感 */
+    
+    flex-direction: column;
+    gap: 15px; 
+    z-index: 999;         /* 確保它在所有元素（包括 Navbar）的最上方 */
+}

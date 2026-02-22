@@ -1,0 +1,73 @@
+body{
+    height:100%;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    font-family: "Chiron GoRound TC", sans-serif;
+    font-optical-sizing: auto;
+}
+main{
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+.bg-image {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('/static/loginGemini.png'); 
+    background-size: cover;      
+    background-position: center;  
+    z-index: -1;              
+    filter: brightness(0.8);      
+}
+
+.login-box {
+    /* 1. 基礎尺寸與邊距 */
+    width: 350px;
+    padding: 40px;
+    border-radius: 15px; /* 圓角 */
+    
+    /* 2. 背景與邊框 */
+    background: rgba(255, 255, 255, 0.7); /* 半透明白色 */
+    border: 1px solid rgba(255, 255, 255, 0.4); /* 淺色邊框 */
+    
+    /* 3. 視覺效果 */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); /* 外陰影讓框浮起來 */
+    backdrop-filter: blur(10px); /* 背景模糊 (毛玻璃關鍵) */
+    
+    /* 4. 置中對齊內容 */
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* 每一項之間的間距 */
+}
+
+/* 讓輸入框也美化一下 */
+.account input, .password input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+/* 登入按鈕美化 */
+.login-btn {
+    background-color: #00796b; /* 醫療綠 */
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s;
+}
+
+.login-btn:hover {
+    background-color: #004d40;
+}
