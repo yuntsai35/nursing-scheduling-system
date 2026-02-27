@@ -27,7 +27,14 @@ window.addEventListener("load", checkLoginStatus);
 function setting() {
     window.location.href = "/setting";
 }
-function staff() {
-    window.location.href = "/staff";
+
+function staff(role) {
+    if (role == generalstaff){
+    window.location.href ="/staff?role=generalstaff";
+   }else if((role == adminstaff)){
+    
+    window.location.href="/staff?role=adminstaff";
+
+   }
 }
 

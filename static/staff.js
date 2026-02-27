@@ -25,8 +25,12 @@ async function checkLoginStatus() {
 window.addEventListener("load", checkLoginStatus);
 
 async function getStaffData() {
+    const params = window.location.search;
+    params_list = params.split('=');
+    role=params_list[1]
+
     const token = localStorage.getItem("token");
-    const response = await fetch("/api/staff", {
+    const response = await fetch(`/api/staff/${role}`, {
         method: "GET",
         headers: {
             "Authorization": `Bearer ${token}`
@@ -35,7 +39,7 @@ async function getStaffData() {
     
     const result = await response.json();
         
-    if (response.ok) {
+    if (response.ok){
         const tbody = document.querySelector("#staffTableBody");
         
         const staffList = result.data; 
@@ -173,6 +177,24 @@ function openmodal(mode, staff = null) {
     let submitbtn = document.querySelector("#insert-btn");
     let title = document.querySelector(".main-input-title");
     let idField=document.querySelector(".main-input .addStaff-ID");
+    const roleSelect = document.querySelector(".main-input #addStaff-role");
+    
+    const params = window.location.search;
+    params_list = params.split('=');
+    role=params_list[1]
+
+
+    if(role=='adminstaff'){
+            const staffnurseOption = roleSelect.querySelector('option[value="Staff_Nurse"]');
+            staffnurseOption.style.display = 'none';
+
+        }else if(role=='generalstaff'){
+            const itadminOption = roleSelect.querySelector('option[value="IT_Admin"]');
+            const headnurseOption = roleSelect.querySelector('option[value="Head_Nurse"]');   
+            itadminOption.style.display = 'none';
+            headnurseOption.style.display = 'none';
+        }
+
     if(mode == 'edit' && staff){
 
         maininput.style.display = 'flex';
@@ -206,7 +228,7 @@ function openmodal(mode, staff = null) {
         maininput.style.display = 'flex';
         submitbtn.onclick = insertstaffinfo;
         title.innerText = "員工管理新增表單"; 
-        submitbtn.innerText = "新增員工檔案"; 
+        submitbtn.innerText = "新增員工檔案";
 
         idField.value = "";
         idField.readOnly = false;

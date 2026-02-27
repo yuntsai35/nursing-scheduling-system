@@ -1,3 +1,4 @@
+
 function addStaff() {
     const id = document.getElementById('staffID').value;
     const name = document.getElementById('staffName').value;

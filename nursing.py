@@ -114,11 +114,14 @@ async def login(request:Request,body: dict = Body(...)):
 			)
 
 #員工管理
-@app.get("/api/staff")
-async def staff(request: Request):
+@app.get("/api/staff/{role}")
+async def staff(request: Request, role: str = None):
     try:
         cursor=con.cursor()
-        cursor.execute("SELECT * FROM staff")
+        if role == 'adminstaff':
+             cursor.execute("SELECT * FROM staff where role ='IT_Admin' or role = 'Head_Nurse'")
+        else:
+             cursor.execute("SELECT * FROM staff where role ='Staff_Nurse'")
         results = cursor.fetchall()
         cursor.close()
         
