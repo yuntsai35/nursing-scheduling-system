@@ -24,15 +24,6 @@ async function checkLoginStatus() {
 }
 window.addEventListener("load", checkLoginStatus);
 
-let addStaff = document.querySelector("#addStaff-btn");
-let maininput = document.querySelector(".main-input");
-
-if (addStaff) {
-    addStaff.addEventListener('click', function() {
-        maininput.style.display = 'flex';
-    });
-}
-
 async function getStaffData() {
     const token = localStorage.getItem("token");
     const response = await fetch("/api/staff", {
@@ -61,7 +52,7 @@ async function getStaffData() {
                 <td>${staff[7]}</td>
                 
                 <td>
-                    <button class="btn btn-sm btn-outline-primary" onclick='openEdit(${JSON.stringify(staff)})'>編輯</button>
+                    <button class="btn btn-sm btn-outline-primary" id="editStaff-btn" onclick='openmodal("edit",${JSON.stringify(staff)})'>編輯</button>
                     <button class="btn btn-sm btn-outline-danger" id="${staff[0]}" onclick="deletestaffinfo(${staff[0]})">刪除</button>
                 </td>
             `;
@@ -142,7 +133,6 @@ async function deletestaffinfo(id) {
 async function editstaffinfo() {
     const token = localStorage.getItem("token");
 
-
     let staffid=document.querySelector(".addStaff-ID").value;
     let name=document.querySelector(".addStaff-name").value;
     let role = document.querySelector("#addStaff-role").value;
@@ -171,25 +161,62 @@ async function editstaffinfo() {
     }
 }
 
-function openEdit(staff) {
-    const editModal = document.querySelector(".edit-input");
-    editModal.style.display = 'flex';
-
-    document.querySelector(".edit-input .addStaff-id").textContent = staff[2]; 
-    document.querySelector(".edit-input .addStaff-name").value = staff[1]; 
-    
-    const roleSelect = document.querySelector(".edit-input #addStaff-role");
-    roleSelect.value = staff[5];
-    
-    renew(roleSelect.selectedIndex); 
-    
-    document.querySelector(".edit-input select[name='member']").value = staff[6];
-    document.querySelector(".edit-input .addStaff-ward").value = staff[7];
-    document.querySelector(".edit-input .addStaff-joindate").value = staff[8];
-}
-
 function closeAddPage() {
     const mainInput = document.querySelector(".main-input");
-    mainInput.style.display = 'none';
-    
+    mainInput.style.display = 'none';   
+}
+
+function openmodal(mode, staff = null) {
+    const add = document.querySelector("#addStaff-btn");
+    const edit = document.querySelector("#edit");
+    let maininput = document.querySelector(".main-input");
+    let submitbtn = document.querySelector("#insert-btn");
+    let title = document.querySelector(".main-input-title");
+    let idField=document.querySelector(".main-input .addStaff-ID");
+    if(mode == 'edit' && staff){
+
+        maininput.style.display = 'flex';
+        title.innerText = "編輯員工檔案";
+        submitbtn.innerText = "儲存修改";
+        submitbtn.onclick = editstaffinfo;
+
+        document.querySelector(".main-input .addStaff-ID").value = staff[2]; 
+
+        idField.readOnly = true; 
+        idField.style.backgroundColor = "#f0f0f0";
+        
+        document.querySelector(".main-input .addStaff-name").value = staff[1]; 
+        
+        const roleSelect = document.querySelector(".main-input #addStaff-role");
+        roleSelect.value = staff[4];
+        
+        renew(roleSelect.selectedIndex); 
+        if(staff[5] == null){
+            document.querySelector(".main-input select[name='member']").value = "無職級";
+        }else{
+            document.querySelector(".main-input select[name='member']").value = staff[5];
+        }
+
+
+        document.querySelector(".main-input .addStaff-ward").value = staff[6];
+        document.querySelector(".main-input .addStaff-joindate").value = staff[7];
+
+    }else if(mode == 'add' && staff==null){
+
+        maininput.style.display = 'flex';
+        submitbtn.onclick = insertstaffinfo;
+        title.innerText = "員工管理新增表單"; 
+        submitbtn.innerText = "新增員工檔案"; 
+
+        idField.value = "";
+        idField.readOnly = false;
+        idField.style.backgroundColor = "white";
+
+        document.querySelector(".main-input .addStaff-name").value = "";
+        document.querySelector(".main-input #addStaff-role").value = "";
+        document.querySelector(".main-input select[name='member']").innerHTML = '<option value="">請先選取職級</option>';
+        document.querySelector(".main-input .addStaff-ward").value = "";
+        document.querySelector(".main-input .addStaff-joindate").value = "";
+        
+    }
 }

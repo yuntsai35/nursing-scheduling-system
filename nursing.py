@@ -12,9 +12,10 @@ load_dotenv()
 import mysql.connector
 
 con = mysql.connector.connect(
-  host="nursingdb.cav8g6cg8pxy.us-east-1.rds.amazonaws.com",
-  user="admin",
+  host="localhost",
+  user="root",
   password=os.getenv("DB_PASSWORD"),
+  database="nursingdb"
 )
 print("database ready")
 
@@ -157,6 +158,8 @@ async def insertstaff(request: Request, body: dict = Body(...)):
     joindate=body["joindate"]
     password=body["staffid"]
 
+    joindate=joindate.split('T')[0]
+
     if level == "無職級":
          level= None
 
@@ -241,9 +244,11 @@ async def editstaff(request:Request, body: dict = Body(...)):
         level=body["level"]
         ward=body["ward"]
         joindate=body["joindate"]
-        
+        if level == "無職級":
+             level = None
+
         cursor=con.cursor(dictionary=True)
-        cursor.execute("UPDATE member SET (full_name, role, level, ward, join_date)= %s,%s,%s,%s,%s WHERE employee_num= %s",[name,role,level,ward,joindate,staffid])
+        cursor.execute("UPDATE staff SET full_name = %s, role = %s, level = %s, ward = %s, join_date = %s WHERE employee_num = %s",[name,role,level,ward,joindate,staffid])
         con.commit()
         cursor.close()
         return {"ok": True}
@@ -263,6 +268,8 @@ async def editstaff(request:Request, body: dict = Body(...)):
 					"message": "伺服器內部錯誤"
 				}
 			)
-    
+
+
+
 
 
