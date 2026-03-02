@@ -18,11 +18,21 @@ async function checkLoginStatus() {
     if (response.ok && result.data !== null) {
       document.querySelector("#username").textContent = result.data.full_name;
 
+      const role=result.data.role;
+      window.currentUserRole = role;
+      if(role =="Head_Nurse"){
+        let operation=document.querySelector("#operation");
+        operation.style.display="none";
+        const insertBtn=document.querySelector("#addStaff-btn");
+        insertBtn.style.display="none";
+      }
+      return role;
+      
     } else {
       window.location.href = "/";
+      return null;
     }
 }
-window.addEventListener("load", checkLoginStatus);
 
 async function getStaffData() {
     const params = window.location.search;
@@ -45,6 +55,22 @@ async function getStaffData() {
         const staffList = result.data; 
         tbody.innerHTML = ""; 
 
+        if(window.currentUserRole ==="Head_Nurse"){
+            staffList.forEach(staff => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${staff[2]}</td> 
+                <td>${staff[1]}</td>
+                <td>${staff[4]}</td>
+                <td>${staff[5]}</td> 
+                <td>${staff[6]}</td>
+                <td>${staff[7]}</td>
+            `;
+            tbody.appendChild(tr);
+        })
+
+        }else{
+
         staffList.forEach(staff => {
             const tr = document.createElement("tr");
             tr.innerHTML = `
@@ -55,18 +81,25 @@ async function getStaffData() {
                 <td>${staff[6]}</td>
                 <td>${staff[7]}</td>
                 
-                <td>
+                <td class="button">
                     <button class="btn btn-sm btn-outline-primary" id="editStaff-btn" onclick='openmodal("edit",${JSON.stringify(staff)})'>編輯</button>
                     <button class="btn btn-sm btn-outline-danger" id="${staff[0]}" onclick="deletestaffinfo(${staff[0]})">刪除</button>
                 </td>
             `;
             tbody.appendChild(tr);
-        });
+        })};
     } else {
         console.error("無法取得員工資料");
     }
 }
-getStaffData();
+
+async function step(){
+    const role= await checkLoginStatus();
+    if (role){
+        getStaffData();
+    }
+}
+window.addEventListener("load", step);
 
 role=new Array();
 role[0]=["請先選取職稱"];

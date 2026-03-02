@@ -32,7 +32,7 @@
   </div>
 </nav>
 <main>
-    <div class="container">
+    <div class="container" id="container1">
         <div class="container-top">
             <div style="display:flex; align-items: center; font-size: 20px; font-weight: bold;"><span class="material-symbols-outlined">settings</span>系統設定</div>
             <div class="text"></div>
@@ -42,24 +42,24 @@
             <div class="container-bottom-text" id="generalstaff" style="display:flex; align-items: center;" onclick="staff(generalstaff)"><span class="material-symbols-outlined">manage_accounts</span>人員管理</div>
         </div>
     </div>
-    <div class="container">
+    <div class="container" id="container2">
         <div class="container-top">
             <div style="display:flex; align-items: center; font-size: 20px; font-weight: bold;"><span class="material-symbols-outlined">date_range</span>排班作業</div>
             <div class="text"></div>
         </div>
         <div class="container-bottom">
-            <div class="container-bottom-text" style="display:flex; align-items: center;" onclick="setting()"><span class="material-symbols-outlined">calendar_clock</span>自動排班</div>
-            <div class="container-bottom-text" style="display:flex; align-items: center;"><span class="material-symbols-outlined">edit_calendar</span>包班預先分配</div>
-            <div class="container-bottom-text" style="display:flex; align-items: center;"><span class="material-symbols-outlined">calendar_check</span>員工橫式班表預假</div>
+            <div class="container-bottom-text" id="autocalendar" style="display:flex; align-items: center;" onclick="setting()"><span class="material-symbols-outlined">calendar_clock</span>自動排班</div>
+            <div class="container-bottom-text" id="setting" style="display:flex; align-items: center;" onclick="set(generalstaff)"><span class="material-symbols-outlined">edit_calendar</span>班別預先分配及設定</div>
+            <div class="container-bottom-text" id="requestbreak" style="display:flex; align-items: center;"><span class="material-symbols-outlined">free_cancellation</span>員工橫式班表預假</div>
         </div>
     </div>
-    <div class="container">
+    <div class="container" id="container3">
         <div class="container-top">
-            <div style="display:flex; align-items: center; font-size: 20px; font-weight: bold;"><span class="material-symbols-outlined">date_range</span>排後作業</div>
+            <div style="display:flex; align-items: center; font-size: 20px; font-weight: bold;"><span class="material-symbols-outlined">calendar_apps_script</span>排後作業</div>
             <div class="text"></div>
         </div>
         <div class="container-bottom">
-            <div class="container-bottom-text" style="display:flex; align-items: center;"><span class="material-symbols-outlined">calendar_clock</span>員工橫式班表</div>
+            <div class="container-bottom-text" style="display:flex; align-items: center;"><span class="material-symbols-outlined">calendar_check</span>員工橫式班表</div>
         </div>
     </div>
     </main>

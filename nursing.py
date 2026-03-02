@@ -2,6 +2,7 @@ from fastapi import *
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
+from fastapi.security import OAuth2PasswordBearer
 import datetime
 from datetime import timezone
 import jwt
@@ -50,6 +51,9 @@ async def index(request: Request):
 @app.get("/setting", include_in_schema=False)
 async def index(request: Request):    
 	return FileResponse("./static/setting.html", media_type="text/html")
+@app.get("/setting1", include_in_schema=False)
+async def index(request: Request):    
+	return FileResponse("./static/setting1.html", media_type="text/html")
 @app.get("/membership", include_in_schema=False)
 async def index(request: Request):
 	return FileResponse("./static/membership.html", media_type="text/html")
@@ -69,7 +73,8 @@ async def checkLoginStatus(request:Request):
                         "id": payload["id"],
                         "full_name": payload["full_name"],
                         "employee_num": payload["employee_num"],
-                        "password": payload["password"]
+                        "password": payload["password"],
+                        "role":payload["role"]
                     }
                 }
         except(jwt.ExpiredSignatureError, jwt.InvalidTokenError):
@@ -91,7 +96,7 @@ async def login(request:Request,body: dict = Body(...)):
 
     try:
         if result:
-            payload={"id":result[0],"full_name":result[1],"employee_num":result[2],"password":result[3], "exp": datetime.datetime.now(tz=timezone.utc) + datetime.timedelta(days=7)}
+            payload={"id":result[0],"full_name":result[1],"employee_num":result[2],"password":result[3],"role":result[4], "exp": datetime.datetime.now(tz=timezone.utc) + datetime.timedelta(days=7)}
             token = jwt.encode(payload, os.getenv("SECRET_PASSWORD"), algorithm='HS256')
             return {"token": token}
         
