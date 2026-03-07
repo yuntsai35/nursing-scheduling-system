@@ -60,7 +60,6 @@ async function getStaffData() {
                 <span class="tag">${staff[1]}<span class="remove-tag">&times;</span></span>
                 <div class="option" data-value="${staff[1]}">${staff[1]}</div>
 
-
             `;
             
             tbody.appendChild(tr);

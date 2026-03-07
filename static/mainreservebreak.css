@@ -7,29 +7,21 @@ body{
     font-size: 26px;
     margin-top: 20px;
 }
-
 .main-container{
-    max-width: 1200px;
-    width: 100%;
-}
-.container-setting{
-    display: flex;   
-    flex-direction: column;
-    justify-content: flex-start;
-}
-
-.group {
-    display: flex;   
-    justify-content: space-between; 
-    align-items: center; 
-    width: 100%;
-}
-.input-container {
     display: flex;
-    justify-content: flex-end;
-}
-.container{
-    display:flex;
-    
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
 }
 
+.date-card {
+    border: 1px solid #ccc; 
+    border-radius: 8px; 
+    margin-bottom: 20px;
+    padding:20px;
+    margin-top: 20px;
+}
+
+.date-card:hover {
+    border: 1px solid #ffbb80; /* 變成藍色 */
+}
