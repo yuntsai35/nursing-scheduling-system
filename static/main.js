@@ -60,4 +60,7 @@ function set(role) {
     window.location.href ="/setting1";
    }
 }
+function mainreservebreak() {
+    window.location.href = "/mainreservebreak";
+}
 

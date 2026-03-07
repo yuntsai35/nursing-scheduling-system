@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Chiron+GoRound+TC:wght@200..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/main.css">
-    <link rel="stylesheet" href="/static/setting1.css">
+    <link rel="stylesheet" href="/static/setting.css">
 </head>
 <body>
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
@@ -38,70 +38,78 @@
         <div class="title">班別人數設定</div>
         <div class="group">
         <div class="container-setting">
-        <div class="container-setting-title" id="白班">白班</div>
+        <div>白班</div>
         <div>白班本月需要的員工數</div>
         </div>
         <div class="input-container">
-            <input type="number" id="required_dayshift" name="required_dayshift" placeholder="請輸入數字">
+            <input placeholder="請輸入數字">
         </div>
         </div>
         <hr>
         <div class="group">
         <div class="container-setting">
-        <div class="container-setting-title" id="小夜">小夜</div>
+        <div>小夜</div>
         <div>小夜本月需要的員工數</div>
         </div>
         <div class="input-container">
-            <input type="number" id="required_nightshift" name="required_nightshift" placeholder="請輸入數字">
+            <input placeholder="請輸入數字">
         </div>
         </div>
         <hr>
         <div class="group">
         <div class="container-setting">
-        <div class="container-setting-title" id="大夜">大夜</div>
+        <div>大夜</div>
         <div>大夜本月需要的員工數</div>
         </div>
         <div class="input-container">
-            <input type="number" id="required_midnightshift" name="required_midnightshift" placeholder="請輸入數字">
+            <input placeholder="請輸入數字">
         </div>
         </div>
     </div>
     <div>
         <div class="title">包班需求</div>
-            <div class="container">
-                <div class="group">
-                    <div class="container-setting">
-                        <div>小夜包班</div>
-                    </div>
-                    <div class="multi-selector-container">
-                        <select class="multi-selector" multiple style="display:none;">
-                            <option value="Item1">Item1</option>
-                            <option value="Item2">Item2</option>
-                            <option value="Item3">Item3</option>
-                        </select>    
-                    </div>
-                </div>
-                <hr>
-                <div class="group">
-                    <div class="container-setting">
-                        <div>大夜包班</div>
-                    </div>
-                    <div class="multi-selector-container">
-                        <select class="multi-selector-midnight" multiple style="display:none;">
-                            <option value="Item1">Item1</option>
-                            <option value="Item2">Item2</option>
-                            <option value="Item3">Item3</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
+        <div class="group">
+        <div class="container-setting">
+        <div>小夜包班</div>
         </div>
+        <div class="input-container">
+            <input placeholder="請輸入護理人員的名字">
+        </div>
+        </div>
+        <hr>
+        <div class="group">
+        <div class="container-setting">
+        <div>大夜包班</div>
+        </div>
+        <div class="container">
+            <div class="custom-select open">
+                <div class="select-box">
+                    <input type="text" class="tags-input" name="tags" hidden />
+                    <div class="selected-options">
+                        <span class="tag">${staff[1]}<span class="remove-tag">&times;</span></span>                        
+                    </div>
+                    <div class="arrow">
+                        <i class="fa fa-angle-down"></i>
 
-    <div class="btn">
-    <button class="btn-group-edit">編輯設定</button>
-    <button class="btn-group-save" onclick="saveSettingmember()">儲存設定</button>
+                    </div>
+
+                </div>
+                <div class="options">
+                    <div class="option-search-tags">
+                        <input type="text" class="search-tags" placeholder="Search tags..."/>
+                        <button type="button" class="clear"><i class="fa fa-close"></i></button>
+                    </div>
+                    <div class="option all-tags" data-value="All">Select All</div>
+                    <div class="option" data-value=""></div>
+                </div>
+
+            </div>
+        
+        </div>
+        </div>
     </div>
+    <button class="btn-group-edit">回到上一頁</button>
+    <button class="btn-group-save">儲存，前往預覽設定</button>
     </main>
-<script src="/static/setting1.js"></script>
 </body>
 </html>

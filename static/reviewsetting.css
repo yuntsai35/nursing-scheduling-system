@@ -6,11 +6,10 @@ body{
 .title{
     font-size: 26px;
     margin-top: 20px;
-    margin-bottom: 20px;
 }
 
 .main-container{
-    max-width: 900px;
+    max-width: 1200px;
     width: 100%;
 }
 .container-setting{
@@ -28,27 +27,4 @@ body{
 .input-container {
     display: flex;
     justify-content: flex-end;
-}
-.btn-group{
-    margin-bottom: 20px;
-    margin-top:20px
-    
-}
-.btn-group-edit{
-    margin-right: 10px;
-    border-radius: 5px;
-    padding: 5px 10px;
-    background-color: #6c757d;
-    border-color: #6c757d;
-    color:#fff;
-
-}
-.btn-group-save{
-    margin-right: 10px;
-    border-radius: 5px;
-    padding: 5px 10px;
-    background-color:#198754;
-    border-color: #198754;
-    color:#fff;
-
 }

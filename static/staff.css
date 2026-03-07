@@ -82,3 +82,7 @@ main{
     gap: 15px; 
     z-index: 999;         /* 確保它在所有元素（包括 Navbar）的最上方 */
 }
+
+input{
+    border-radius: 10px;
+}

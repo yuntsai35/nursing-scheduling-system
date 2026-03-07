@@ -101,16 +101,21 @@ async function step(){
 }
 window.addEventListener("load", step);
 
-role=new Array();
-role[0]=["請先選取職稱"];
-role[1]=["無職級"];	
-role[2]=["無職級"];	
-role[3]=["N0", "N1", "N2", "N3", "N4"];
+// 選單連動
+const roleobject={
+"":["請先選取職稱"],
+"IT_Admin":["無職級"],	
+"Head_Nurse":["無職級"],	
+"Staff_Nurse":["N0", "N1", "N2", "N3", "N4"]};
 
-function renew(index){
-	for(var i=0;i<role[index].length;i++)
-		document.myForm.member.options[i]=new Option(role[index][i], role[index][i]);
-	document.myForm.member.length=role[index].length;
+function renew(value){
+    const memberSelect = document.myForm.member;
+    const options = roleobject[value];
+    memberSelect.length = 0;
+
+	options.forEach(text => {
+    // new Option(顯示文字, 數值)
+    memberSelect.options.add(new Option(text, text));});
 }
 
 async function insertstaffinfo() {
@@ -245,7 +250,7 @@ function openmodal(mode, staff = null) {
         const roleSelect = document.querySelector(".main-input #addStaff-role");
         roleSelect.value = staff[4];
         
-        renew(roleSelect.selectedIndex); 
+        renew(roleSelect.value); 
         if(staff[5] == null){
             document.querySelector(".main-input select[name='member']").value = "無職級";
         }else{

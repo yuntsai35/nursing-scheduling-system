@@ -1,72 +1,112 @@
+async function getStaffDataNight() {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`/api/staff`, {
+        method: "GET",
+        headers: { "Authorization": `Bearer ${token}` }
+    });
+    const result = await response.json();
 
-function addStaff() {
-    const id = document.getElementById('staffID').value;
-    const name = document.getElementById('staffName').value;
-    const title = document.getElementById('staffTitle').value;
-    const ward = document.getElementById('staffWard').value;
-
-    if (!id || !name || !title || !ward) {
-        alert("請填寫所有欄位！");
-        return;
+    if (response.ok) {
+        const staffList = result.data;
+        // 核心修正：直接執行初始化，不要包在 window.onload
+        const targetSelect = document.querySelector('.multi-selector');
+        initMultiElement(targetSelect, staffList, "night");
     }
-
-
-    const tableBody = document.getElementById('staffTableBody');
-
-
-    tableBody.innerHTML += `
-        <tr>
-            <td>${id}</td>
-            <td>${name}</td>
-            <td>${title}</td>
-            <td>${ward}</td>
-            <td>
-                <button class="btn btn-danger btn-sm">刪除</button>
-                <button class="btn btn-outline-primary btn-sm">編輯</button>
-            </td>
-        </tr>
-    `;
-
-    document.getElementById('staffID').value = '';
-    document.getElementById('staffName').value = '';
-    document.getElementById('staffTitle').value = '';
-    document.getElementById('staffWard').value = '';
 }
 
-async function getStaffData() {
-    const params = window.location.search;
-    params_list = params.split('=');
-    role=params_list[1]
-
+async function getStaffDataMidnight() {
     const token = localStorage.getItem("token");
-    const response = await fetch(`/api/staff/${role}`, {
+    const response = await fetch(`/api/staff`, {
         method: "GET",
-        headers: {
-            "Authorization": `Bearer ${token}`
-        }
+        headers: { "Authorization": `Bearer ${token}` }
+    });
+    const result = await response.json();
+
+    if (response.ok) {
+        const staffList = result.data;
+        // 核心修正：直接執行初始化，對準大夜的 class
+        const targetSelect = document.querySelector('.multi-selector-midnight');
+        initMultiElement(targetSelect, staffList, "midnight");
+    }
+}
+
+// 抽出來的通用初始化函式
+function initMultiElement(targetSelect, staffList, type) {
+    var multiElement = document.createElement('div');
+    multiElement.setAttribute('class', `dropdown dropdown-${type}`); // 加入區別用的 class
+    var html = `<div class="item text"><label></label></div>`;
+
+    staffList.forEach(staff => {
+        // 同步原始 select 的 options (如果 HTML 裡沒寫的話)
+        let opt = document.createElement('option');
+        opt.value = staff[1];
+        opt.text = staff[1];
+        targetSelect.appendChild(opt);
+
+        html += `<div class="item">
+                    <input type="checkbox" value="${staff[1]}"/>
+                    <span>${staff[1]}</span>
+                 </div>`;
     });
     
-    const result = await response.json();
-        
-    if (response.ok){
-        const tbody = document.querySelector("#staffTableBody");
-        
-        const staffList = result.data; 
-        tbody.innerHTML = ""; 
+    multiElement.innerHTML = html;
+    targetSelect.parentElement.appendChild(multiElement);
 
-        staffList.forEach(staff => {
-            const div = document.createElement("div");
-            div.innerHTML = `
-                <span class="tag">${staff[1]}<span class="remove-tag">&times;</span></span>
-                <div class="option" data-value="${staff[1]}">${staff[1]}</div>
+    // 設定點擊事件：只針對當前這個 multiElement 內部的 input
+    const checkboxes = multiElement.querySelectorAll('input[type="checkbox"]');
+    const label = multiElement.querySelector('.text label');
 
-
-            `;
+    checkboxes.forEach(function(checkItem) {
+        checkItem.addEventListener("click", function(e) {
+            let resultText = '';
+            // 只抓「當前選單」被勾選的
+            let checkedItems = multiElement.querySelectorAll('input:checked[type="checkbox"]');
             
-            tbody.appendChild(tr);
+            checkedItems.forEach(function(selectItem) {
+                if (resultText !== '') resultText += ',';
+                resultText += selectItem.value;
+            });
+
+            // 更新當前選單的 Label
+            label.innerText = resultText;
+
+            // 同步回原本對應的 ListBox (targetSelect)
+            let option = targetSelect.querySelector(`option[value="${e.target.value}"]`);
+            if (option) option.selected = e.target.checked;
         });
-    } else {
-        console.error("無法取得員工資料");
+    });
+}
+
+// 執行兩次
+getStaffDataNight();
+getStaffDataMidnight();
+
+async function saveSettingmember(){
+    const token = localStorage.getItem("token"); 
+    const required_dayshift = document.getElementById("required_dayshift").value;
+    const required_nightshift = document.getElementById("required_nightshift").value;
+    const required_midnightshift = document.getElementById("required_midnightshift").value;
+
+    const nightSelect = document.querySelector('.multi-selector');
+    const selectedNightStaff = Array.from(nightSelect.selectedOptions).map(opt => opt.value);
+    
+    const midnightSelect = document.querySelector('.multi-selector-midnight');
+    const selectedMidnightStaff = Array.from(midnightSelect.selectedOptions).map(opt => opt.value);
+
+
+    const response = await fetch(`/api/settingstaffnumber`, {
+        method: "POST",
+        headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+        },
+        body:JSON.stringify({"required_dayshift":required_dayshift,"required_nightshift":required_nightshift,"required_mignightshift":required_midnightshift,"multi_selector":selectedNightStaff,"multi_selector_midnight":selectedMidnightStaff
+
+        })}) 
+    
+    const result = await response.json();
+    if (response.ok && result.data !== null){
+        alert("儲存成功！");
+        window.location.href="/main"
     }
 }
-getStaffData();

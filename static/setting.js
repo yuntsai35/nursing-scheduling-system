@@ -1,34 +1,46 @@
+async function saveSettingtime(){
+    const token = localStorage.getItem("token"); 
+    const min_shift_interval= document.getElementById("min_shift_interval").value;
+    const min_rest_2w= document.getElementById("min_rest_2w").value;
+    const min_rest_1m= document.getElementById("min_rest_1m").value;
+    const max_hours_1w= document.getElementById("max_hours_1w").value;
+    const max_hours_1d= document.getElementById("max_hours_1d").value;
+    const max_continuous_work= document.getElementById("max_continuous_work").value;
+    const max_shifts_1w= document.getElementById("max_shifts_1w").value;
 
-function addStaff() {
-    const id = document.getElementById('staffID').value;
-    const name = document.getElementById('staffName').value;
-    const title = document.getElementById('staffTitle').value;
-    const ward = document.getElementById('staffWard').value;
-
-    if (!id || !name || !title || !ward) {
-        alert("請填寫所有欄位！");
-        return;
+ 
+    const response = await fetch(`/api/settingtime`, {
+        method: "PATCH",
+        headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+        },
+        body:JSON.stringify({"min_shift_interval":min_shift_interval, "min_rest_2w":min_rest_2w, "min_rest_1m":min_rest_1m, "max_hours_1w":max_hours_1w, "max_hours_1d":max_hours_1d, "max_continuous_work":max_continuous_work, "max_shifts_1w":max_shifts_1w})
+    });    
+    const result = await response.json();
+    if (response.ok && result.data !== null){
+        window.location.href="/settingmember"
     }
-
-
-    const tableBody = document.getElementById('staffTableBody');
-
-
-    tableBody.innerHTML += `
-        <tr>
-            <td>${id}</td>
-            <td>${name}</td>
-            <td>${title}</td>
-            <td>${ward}</td>
-            <td>
-                <button class="btn btn-danger btn-sm">刪除</button>
-                <button class="btn btn-outline-primary btn-sm">編輯</button>
-            </td>
-        </tr>
-    `;
-
-    document.getElementById('staffID').value = '';
-    document.getElementById('staffName').value = '';
-    document.getElementById('staffTitle').value = '';
-    document.getElementById('staffWard').value = '';
 }
+
+async function getSettingtime(){
+    const token = localStorage.getItem("token"); 
+    const response = await fetch(`/api/settingtime`, {
+        method: "GET",
+        headers: {
+            "Authorization": `Bearer ${token}`
+        }
+    });    
+    const result = await response.json();
+
+    if (response.ok && result.data !== null){
+        document.getElementById("min_shift_interval").value = result.data.min_shift_interval;
+        document.getElementById("min_rest_2w").value = result.data.min_rest_2w;
+        document.getElementById("min_rest_1m").value = result.data.min_rest_1m; 
+        document.getElementById("max_hours_1w").value = result.data.max_hours_1w;
+        document.getElementById("max_hours_1d").value = result.data.max_hours_1d;
+        document.getElementById("max_continuous_work").value = result.data.max_continuous_work;
+        document.getElementById("max_shifts_1w").value = result.data.max_shifts_1w;
+    }
+}
+getSettingtime();
