@@ -39,13 +39,13 @@ function initMultiElement(targetSelect, staffList, type) {
     staffList.forEach(staff => {
         // 同步原始 select 的 options (如果 HTML 裡沒寫的話)
         let opt = document.createElement('option');
-        opt.value = staff[1];
-        opt.text = staff[1];
+        opt.value = staff.full_name;
+        opt.text = staff.full_name;
         targetSelect.appendChild(opt);
 
         html += `<div class="item">
-                    <input type="checkbox" value="${staff[1]}"/>
-                    <span>${staff[1]}</span>
+                    <input type="checkbox" value="${staff.full_name}"/>
+                    <span>${staff.full_name}</span>
                  </div>`;
     });
     

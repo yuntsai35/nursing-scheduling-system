@@ -2,7 +2,6 @@ from fastapi import *
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
-from fastapi.security import OAuth2PasswordBearer
 import datetime
 from datetime import timezone
 import jwt
@@ -10,98 +9,10 @@ import jwt
 import os
 from dotenv import load_dotenv
 load_dotenv()
-import mysql.connector
 
-con = mysql.connector.connect(
-  host="nursingdb.cav8g6cg8pxy.us-east-1.rds.amazonaws.com",
-  user="admin",
-  password=os.getenv("DB_PASSWORD"),
-
-)
-print("database ready")
-
-def check_db():
-    cursor = con.cursor()
-    
-    # 1. 建立並使用資料庫
-    cursor.execute("CREATE DATABASE IF NOT EXISTS nursingdb")
-    cursor.execute("USE nursingdb")
-    
-    # 2. 建立 staff 表 (這是基礎表，必須先建立)
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS `staff` (
-      `id` int NOT NULL AUTO_INCREMENT,
-      `full_name` varchar(50) NOT NULL,
-      `employee_num` varchar(20) NOT NULL,
-      `password` varchar(255) NOT NULL,
-      `role` enum('IT_Admin','Head_Nurse','Staff_Nurse') NOT NULL,
-      `level` enum('N0','N1','N2','N3','N4') DEFAULT NULL,
-      `ward` varchar(20) DEFAULT NULL,
-      `join_date` date DEFAULT NULL,
-      `is_temp_password` tinyint(1) DEFAULT '1',
-      PRIMARY KEY (`id`),
-      UNIQUE KEY `employee_num` (`employee_num`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-    """)
-
-    # 3. 建立 scheduled_member 表 (包含指向 staff 的外鍵)
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS `scheduled_member` (
-      `id` int NOT NULL AUTO_INCREMENT,
-      `schedule_id` varchar(50) DEFAULT NULL,
-      `staff_id` int DEFAULT NULL,
-      `schedule_date` int DEFAULT NULL,
-      `leave_dates` text,
-      `ward` varchar(50) DEFAULT NULL,
-      PRIMARY KEY (`id`),
-      KEY `fk_staff_id` (`staff_id`),
-      CONSTRAINT `fk_staff_id` FOREIGN KEY (`staff_id`) REFERENCES `staff` (`id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-    """)
-
-    # 4. 建立 settingtime 表
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS `settingtime` (
-      `id` int NOT NULL AUTO_INCREMENT,
-      `ward` varchar(50) NOT NULL,
-      `min_shift_interval` decimal(4,1) DEFAULT NULL,
-      `min_rest_2w` decimal(4,1) DEFAULT NULL,
-      `min_rest_1m` decimal(5,1) DEFAULT NULL,
-      `max_hours_1w` decimal(4,1) DEFAULT NULL,
-      `max_hours_1d` decimal(4,1) DEFAULT NULL,
-      `max_continuous_work` decimal(4,1) DEFAULT NULL,
-      `max_shifts_1w` decimal(4,1) DEFAULT NULL,
-      PRIMARY KEY (`id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-    """)
-
-    # 5. 建立 staff_number_schedule 表
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS `staff_number_schedule` (
-      `id` int NOT NULL AUTO_INCREMENT,
-      `shift` varchar(30) NOT NULL,
-      `shift_staff_number` int NOT NULL,
-      `staff_id` text,
-      `ward` varchar(30) NOT NULL,
-      PRIMARY KEY (`id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-    """)
-
-    # 6. 檢查並建立初始管理員帳號
-    cursor.execute("SELECT COUNT(*) FROM staff WHERE employee_num = 'ADM0001'")
-    if cursor.fetchone()[0] == 0:
-        cursor.execute("""
-            INSERT INTO staff (full_name, employee_num, password, role, join_date, is_temp_password) 
-            VALUES ('系統管理員', 'ADM0001', 'ADM0001', 'IT_Admin', CURDATE(), 1)
-        """)
-        con.commit()
-        print("Initial admin account created.")
-
-    cursor.close()
-    print("All RDS tables for 'nursingdb' are ready.")
-
-# 呼叫函數
-check_db()
+#sqlalchemy
+from db_test import engine, Base, staff, scheduled_member, settingtime, staff_number_schedule, SessionLocal
+from sqlalchemy import desc,asc
 
 app=FastAPI()
 
@@ -164,18 +75,16 @@ async def checkLoginStatus(request:Request):
 
 @app.put("/api/user/auth")
 async def login(request:Request,body: dict = Body(...)):
+    db = SessionLocal()
     
     employee_num=body["employee_num"]
     password=body["password"]
-
-    cursor=con.cursor()
-    cursor.execute("SELECT * FROM staff WHERE employee_num=%s AND password=%s",[employee_num, password])
-    result=cursor.fetchone()
-    cursor.close()
+    
+    result=db.query(staff).filter(staff.employee_num == employee_num).filter(staff.password==password).first()
 
     try:
         if result:
-            payload={"id":result[0],"full_name":result[1],"employee_num":result[2],"password":result[3],"role":result[4],"ward":result[6], "exp": datetime.datetime.now(tz=timezone.utc) + datetime.timedelta(days=7)}
+            payload={"id":result.id,"full_name":result.full_name,"employee_num":result.employee_num,"password":result.password,"role":result.role,"ward":result.ward, "exp": datetime.datetime.now(tz=timezone.utc) + datetime.timedelta(days=7)}
             token = jwt.encode(payload, os.getenv("SECRET_PASSWORD"), algorithm='HS256')
             return {"token": token}
         
@@ -196,18 +105,20 @@ async def login(request:Request,body: dict = Body(...)):
 					"message": "伺服器內部錯誤"
 				}
 			)
+    finally:
+         db.close()
+ 
+
 
 #員工管理
 @app.get("/api/staff/{role}")
-async def staff(request: Request, role: str = None):
+async def get_staff_list(request: Request, role: str = None):
+    db=SessionLocal()
     try:
-        cursor=con.cursor()
         if role == 'adminstaff':
-             cursor.execute("SELECT * FROM staff where role ='IT_Admin' or role = 'Head_Nurse'")
+             results=db.query(staff).filter(staff.role =='Head_Nurse').order_by(asc(staff.employee_num)).all()
         else:
-             cursor.execute("SELECT * FROM staff where role ='Staff_Nurse'")
-        results = cursor.fetchall()
-        cursor.close()
+             results=db.query(staff).filter(staff.role =='Staff_Nurse').order_by(asc(staff.employee_num)).all()
         
         return {"data": results}
     except HTTPException:
@@ -218,11 +129,13 @@ async def staff(request: Request, role: str = None):
 					"message": "請依照情境提供對應的錯誤訊息"
 				}
 			)
+    finally:
+         db.close()
     
          
 @app.post("/api/staff")
 async def insertstaff(request: Request, body: dict = Body(...)):
-
+    db=SessionLocal()
     bearerToken = request.headers.get("Authorization")
     if not bearerToken:
         return JSONResponse(
@@ -257,9 +170,9 @@ async def insertstaff(request: Request, body: dict = Body(...)):
             )
 
     try:
-        cursor = con.cursor(dictionary=True)
-        cursor.execute("INSERT INTO staff (employee_num, full_name,password, role, level, ward, join_date) VALUES (%s, %s, %s, %s, %s, %s, %s)",[staffid,name,password,role,level,ward,joindate])
-        con.commit()
+        stafflist = staff(employee_num=staffid, full_name=name, password=staffid, role=role, level=level, ward=ward, join_date=joindate)
+        db.add(stafflist)
+        db.commit()
         return{"ok":True}
     
     except jwt.PyJWTError:
@@ -276,10 +189,14 @@ async def insertstaff(request: Request, body: dict = Body(...)):
 					"message": "伺服器內部錯誤"
 				}
 			)
+    finally:
+         db.close()
+         
 
     
 @app.delete("/api/staff")
 async def deletestaff(request:Request, body: dict = Body(...)):
+    db=SessionLocal()
     bearerToken = request.headers.get("Authorization")
     if not bearerToken:
         return JSONResponse(
@@ -296,10 +213,9 @@ async def deletestaff(request:Request, body: dict = Body(...)):
     staffid=body["staffid"]
 
     try:
-        cursor = con.cursor(dictionary=True)
-        cursor.execute("DELETE FROM staff WHERE id=%s",[staffid])
-        con.commit() 
-        cursor.close()
+        target = db.query(staff).filter(staff.id == staffid).first()
+        db.delete(target)
+        db.commit()
         return {"ok":True}
         
     except jwt.PyJWTError: 
@@ -307,10 +223,13 @@ async def deletestaff(request:Request, body: dict = Body(...)):
             status_code=403,
             content={"error": True, "message": "未登入系統，拒絕存取"}
         )
+    finally:
+         db.close()
     
 
 @app.patch("/api/staff")
 async def editstaff(request:Request, body: dict = Body(...)):
+    db=SessionLocal()
     bearerToken = request.headers.get("Authorization")
     if not bearerToken:
         return JSONResponse(
@@ -333,11 +252,14 @@ async def editstaff(request:Request, body: dict = Body(...)):
         joindate=body["joindate"]
         if level == "無職級":
              level = None
-
-        cursor=con.cursor(dictionary=True)
-        cursor.execute("UPDATE staff SET full_name = %s, role = %s, level = %s, ward = %s, join_date = %s WHERE employee_num = %s",[name,role,level,ward,joindate,staffid])
-        con.commit()
-        cursor.close()
+        
+        target = db.query(staff).filter(staff.id == staffid).first()
+        target.full_name = name
+        target.role = role
+        target.level = level
+        target.ward = ward
+        target.join_date = joindate
+        db.commit()
         return {"ok": True}
     
     except jwt.PyJWTError:
@@ -355,10 +277,13 @@ async def editstaff(request:Request, body: dict = Body(...)):
 					"message": "伺服器內部錯誤"
 				}
 			)
+    finally:
+         db.close()
     
 
-@app.patch("/api/settingtime")
+@app.post("/api/settingtime")
 async def updatesettingtime(request:Request, body: dict = Body(...)):
+    db=SessionLocal()
     bearerToken = request.headers.get("Authorization")
     if not bearerToken:
         return JSONResponse(
@@ -381,11 +306,11 @@ async def updatesettingtime(request:Request, body: dict = Body(...)):
         max_continuous_work= float(body["max_continuous_work"])
         max_shifts_1w= float(body["max_shifts_1w"])
 
-
-        cursor=con.cursor(dictionary=True)
-        cursor.execute("UPDATE settingtime SET min_shift_interval=%s,min_rest_2w=%s,min_rest_1m=%s,max_hours_1w=%s,max_hours_1d=%s,max_continuous_work=%s,max_shifts_1w=%s WHERE ward = %s",[ min_shift_interval, min_rest_2w, min_rest_1m, max_hours_1w, max_hours_1d, max_continuous_work, max_shifts_1w, ward])
-        con.commit()
-        cursor.close()
+        db.query(settingtime).filter(settingtime.ward == ward).delete()
+        
+        new_settingtime = settingtime(ward=ward,min_shift_interval=min_shift_interval,min_rest_2w=min_rest_2w,min_rest_1m=min_rest_1m,max_hours_1w=max_hours_1w,max_hours_1d=max_hours_1d,max_continuous_work=max_continuous_work,max_shifts_1w=max_shifts_1w)
+        db.add(new_settingtime)
+        db.commit()
         return {"ok": True}
     
     except jwt.PyJWTError:
@@ -403,9 +328,13 @@ async def updatesettingtime(request:Request, body: dict = Body(...)):
 					"message": "伺服器內部錯誤"
 				}
 			)
+    finally:
+         db.close()
+
 
 @app.get("/api/settingtime")
 async def savesettingtime(request: Request):
+    db=SessionLocal()
     bearerToken = request.headers.get("Authorization")
     if not bearerToken:
         return JSONResponse(
@@ -420,11 +349,7 @@ async def savesettingtime(request: Request):
         ward = payload["ward"]
 
     try:
-        cursor=con.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM settingtime where ward =%s",[ward])
-        result = cursor.fetchone()
-        cursor.close()
-
+        result=db.query(settingtime).filter(settingtime.ward==ward).first()
         return {"data":result}
     except HTTPException:
             raise HTTPException(
@@ -434,9 +359,12 @@ async def savesettingtime(request: Request):
 					"message": "請依照情境提供對應的錯誤訊息"
 				}
 			)
+    finally:
+         db.close()
     
 @app.get("/api/settingmember")
 async def savesettingtime(request: Request):
+    db=SessionLocal()
     bearerToken = request.headers.get("Authorization")
     if not bearerToken:
         return JSONResponse(
@@ -451,11 +379,8 @@ async def savesettingtime(request: Request):
         ward = payload["ward"]
 
     try:
-        cursor=con.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM settingtime where ward =%s",[ward])
-        result = cursor.fetchone()
-        cursor.close()
-
+        result=db.query(settingtime).filter(settingtime.ward==ward).first()
+        
         return {"data":result}
     except HTTPException:
             raise HTTPException(
@@ -465,16 +390,23 @@ async def savesettingtime(request: Request):
 					"message": "請依照情境提供對應的錯誤訊息"
 				}
 			)
+    finally:
+         db.close()
     
 @app.get("/api/staff")
-async def staff(request: Request):
+async def showstaff(request: Request):
+    db=SessionLocal()
     try:
-        cursor=con.cursor()
-        cursor.execute("SELECT id, full_name FROM staff where role ='Staff_Nurse'")
-        results = cursor.fetchall()
-        cursor.close()
+        results = db.query(staff).filter(staff.role == 'Staff_Nurse').all()
+       
+        data_list = []
+        for user in results:
+            data_list.append({
+                "id": user.id,
+                "full_name": user.full_name
+            })
         
-        return {"data": results}
+        return {"data": data_list}
     except HTTPException:
             raise HTTPException(
 				status_code=500,
@@ -483,9 +415,12 @@ async def staff(request: Request):
 					"message": "請依照情境提供對應的錯誤訊息"
 				}
 			)
-    
+    finally:
+         db.close()
+
 @app.post("/api/settingmember")
 async def updatesettingmember(request:Request, body: dict = Body(...)):
+    db=SessionLocal()
     bearerToken = request.headers.get("Authorization")
     if not bearerToken:
         return JSONResponse(
@@ -504,14 +439,19 @@ async def updatesettingmember(request:Request, body: dict = Body(...)):
         staff_id= body["selectedStaff"]
         schedule_date= body["days"]
 
-        cursor=con.cursor()
-        cursor.execute("DELETE FROM scheduled_member WHERE schedule_id = %s and ward =%s",[schedule_id, ward])
-
-        for id in staff_id:
-             cursor.execute("INSERT INTO scheduled_member (schedule_id, staff_id, schedule_date,ward) VALUES (%s, %s, %s, %s)",[schedule_id,id,schedule_date,ward])
+        db.query(scheduled_member).filter(scheduled_member.schedule_id == schedule_id,scheduled_member.ward == ward).delete(synchronize_session=False)
         
-        con.commit()
-        cursor.close()
+        for id in staff_id:
+            new_record = scheduled_member(
+                schedule_id=schedule_id,
+                staff_id=id,
+                schedule_date=schedule_date,
+                ward=ward
+            )
+            db.add(new_record)
+        
+        db.commit()
+        
         return {"ok": True}
     
     except jwt.PyJWTError:
@@ -529,10 +469,13 @@ async def updatesettingmember(request:Request, body: dict = Body(...)):
 					"message": "伺服器內部錯誤"
 				}
 			)
+    finally:
+         db.close()
     
 #目前為固定的版本，請修改成彈性可增加項目的樣子
 @app.post("/api/settingstaffnumber")
 async def insertsettingstaffnumber(request:Request, body: dict = Body(...)):
+    db=SessionLocal()
     bearerToken = request.headers.get("Authorization")
     if not bearerToken:
         return JSONResponse(
@@ -554,17 +497,16 @@ async def insertsettingstaffnumber(request:Request, body: dict = Body(...)):
         selectedNightStaff=",".join(body["multi_selector"])
         selectedMidnightStaff=",".join(body["multi_selector_midnight"])
 
-        cursor=con.cursor()
-        cursor.execute("DELETE FROM  staff_number_schedule WHERE ward =%s",[ward])
+        db.query(staff_number_schedule).filter(staff_number_schedule.ward == ward).delete(synchronize_session=False)
 
 
         shifting_group=[("day",required_dayshift,"",ward),("night",required_nightshift,selectedNightStaff,ward),("midnight", required_mignightshift, selectedMidnightStaff,ward)]
 
         for data in shifting_group:     
-           cursor.execute("INSERT INTO staff_number_schedule (shift, shift_staff_number, staff_id, ward) VALUES (%s, %s, %s, %s)",data)
+             new_record = staff_number_schedule(shift=data[0],shift_staff_number=data[1],staff_id=data[2],ward=data[3])
+             db.add(new_record)
         
-        con.commit()
-        cursor.close()
+        db.commit()
         return {"ok": True}
     
     except jwt.PyJWTError:
@@ -582,14 +524,14 @@ async def insertsettingstaffnumber(request:Request, body: dict = Body(...)):
 					"message": "伺服器內部錯誤"
 				}
 			)
+    finally:
+         db.close()
 
 @app.get("/api/date")
 async def reservemonth(request: Request):
+    db=SessionLocal()
     try:
-        cursor=con.cursor()
-        cursor.execute("SELECT DISTINCT schedule_id FROM scheduled_member ORDER BY schedule_id DESC;")
-        results = cursor.fetchall()
-        cursor.close()
+        results = db.query(scheduled_member.schedule_id).distinct().order_by(scheduled_member.schedule_id.desc()).all()
         date_list = []
         for result in results:
             date_list.append(result[0])
@@ -607,10 +549,13 @@ async def reservemonth(request: Request):
 					"message": "請依照情境提供對應的錯誤訊息"
 				}
 			)
+    finally:
+         db.close()
     
 
 @app.get("/api/reservestaff/{date}")
 async def getreservestaff(request: Request,date: str = None):
+    db=SessionLocal()
     bearerToken = request.headers.get("Authorization")
     if not bearerToken:
         return JSONResponse(
@@ -625,12 +570,21 @@ async def getreservestaff(request: Request,date: str = None):
         ward = payload["ward"]
 
     try:
-        cursor=con.cursor()
-        cursor.execute("SELECT scheduled_member.staff_id, scheduled_member.schedule_date, staff.full_name FROM scheduled_member INNER JOIN staff ON scheduled_member.staff_id = staff.id WHERE scheduled_member.schedule_id = %s AND scheduled_member.ward = %s",[date, ward])
-        results = cursor.fetchall()
-        cursor.close()
-        
-        return {"data": results}
+        results = db.query(
+        scheduled_member.staff_id,
+        scheduled_member.schedule_date,
+        staff.full_name,
+        scheduled_member.leave_dates).join(staff, scheduled_member.staff_id == staff.id).filter(scheduled_member.schedule_id == date,scheduled_member.ward == ward).all()
+        formatted_data = []
+        for row in results:
+            formatted_data.append({
+                "staff_id": row.staff_id,
+                "schedule_date": row.schedule_date,
+                "full_name": row.full_name,
+                "leave_dates": row.leave_dates
+            })
+            
+        return {"data": formatted_data}
     except HTTPException:
             raise HTTPException( 
 				status_code=500,
@@ -639,3 +593,51 @@ async def getreservestaff(request: Request,date: str = None):
 					"message": "請依照情境提供對應的錯誤訊息"
 				}
 			)
+    finally:
+         db.close()
+
+@app.patch("/api/settingReserveBreak")
+async def updateReserveBreak(request:Request, body: dict = Body(...)):
+    db=SessionLocal()
+    bearerToken = request.headers.get("Authorization")
+    if not bearerToken:
+        return JSONResponse(
+				status_code=403,
+				content={
+					"error": True,
+					"message": "未登入系統，拒絕存取"})
+
+    if bearerToken:
+        token = bearerToken.split(" ")
+        payload = jwt.decode(token[1], os.getenv("SECRET_PASSWORD"), algorithms=["HS256"])
+        id=payload["id"]
+        ward=payload["ward"]
+
+    try:
+        leave_dates = body["reserve_dates"]
+        schedule_id = body["schedule_id"]
+
+        
+        target = db.query(scheduled_member).filter(scheduled_member.staff_id == id,scheduled_member.ward == ward,scheduled_member.schedule_id == schedule_id).first()
+        target.leave_dates = leave_dates
+        db.commit()
+        return {"ok": True}
+    
+    except jwt.PyJWTError:
+        return JSONResponse(
+            status_code=403,
+            content={"error": True, "message": "未登入系統，拒絕存取"}
+        )
+    
+    except Exception as e:
+            print(f"後端發生錯誤：{e}")
+            return JSONResponse(
+				status_code=500,
+				content={
+					"error": True,
+					"message": "伺服器內部錯誤"
+				}
+			)
+    finally:
+         db.close()
+     

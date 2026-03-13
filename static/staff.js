@@ -59,12 +59,12 @@ async function getStaffData() {
             staffList.forEach(staff => {
             const tr = document.createElement("tr");
             tr.innerHTML = `
-                <td>${staff[2]}</td> 
-                <td>${staff[1]}</td>
-                <td>${staff[4]}</td>
-                <td>${staff[5]}</td> 
-                <td>${staff[6]}</td>
-                <td>${staff[7]}</td>
+                <td>${staff.employee_num}</td> 
+                <td>${staff.full_name}</td>
+                <td>${staff.role}</td>
+                <td>${staff.level}</td> 
+                <td>${staff.ward}</td>
+                <td>${staff.join_date}</td>
             `;
             tbody.appendChild(tr);
         })
@@ -74,16 +74,16 @@ async function getStaffData() {
         staffList.forEach(staff => {
             const tr = document.createElement("tr");
             tr.innerHTML = `
-                <td>${staff[2]}</td> 
-                <td>${staff[1]}</td>
-                <td>${staff[4]}</td>
-                <td>${staff[5]}</td> 
-                <td>${staff[6]}</td>
-                <td>${staff[7]}</td>
+                <td>${staff.employee_num}</td> 
+                <td>${staff.full_name}</td>
+                <td>${staff.role}</td>
+                <td>${staff.level}</td> 
+                <td>${staff.ward}</td>
+                <td>${staff.join_date}</td>
                 
                 <td class="button">
                     <button class="btn btn-sm btn-outline-primary" id="editStaff-btn" onclick='openmodal("edit",${JSON.stringify(staff)})'>編輯</button>
-                    <button class="btn btn-sm btn-outline-danger" id="${staff[0]}" onclick="deletestaffinfo(${staff[0]})">刪除</button>
+                    <button class="btn btn-sm btn-outline-danger" id="${staff.id}" onclick="deletestaffinfo(${staff.id})">刪除</button>
                 </td>
             `;
             tbody.appendChild(tr);
@@ -240,26 +240,26 @@ function openmodal(mode, staff = null) {
         submitbtn.innerText = "儲存修改";
         submitbtn.onclick = editstaffinfo;
 
-        document.querySelector(".main-input .addStaff-ID").value = staff[2]; 
+        document.querySelector(".main-input .addStaff-ID").value = staff.employee_num; 
 
         idField.readOnly = true; 
         idField.style.backgroundColor = "#f0f0f0";
         
-        document.querySelector(".main-input .addStaff-name").value = staff[1]; 
+        document.querySelector(".main-input .addStaff-name").value = staff.full_name; 
         
         const roleSelect = document.querySelector(".main-input #addStaff-role");
-        roleSelect.value = staff[4];
+        roleSelect.value = staff.role;
         
         renew(roleSelect.value); 
-        if(staff[5] == null){
+        if(staff.level == null){
             document.querySelector(".main-input select[name='member']").value = "無職級";
         }else{
-            document.querySelector(".main-input select[name='member']").value = staff[5];
+            document.querySelector(".main-input select[name='member']").value = staff.level;
         }
 
 
-        document.querySelector(".main-input .addStaff-ward").value = staff[6];
-        document.querySelector(".main-input .addStaff-joindate").value = staff[7];
+        document.querySelector(".main-input .addStaff-ward").value = staff.ward;
+        document.querySelector(".main-input .addStaff-joindate").value = staff.join_date;
 
     }else if(mode == 'add' && staff==null){
 

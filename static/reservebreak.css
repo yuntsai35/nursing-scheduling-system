@@ -49,55 +49,44 @@ body{
     display:flex;
 }
 .container{
-    display:flex;
+    display:flex;    
+}
+.tablelist thead th {
+    width: 40px; 
+    height: 30px; /* 如果想要變正方形可以加高度 */
+}
+.staff{
+    width:70px;
+    height:30px;
+}
+
+.tablelist {
+    margin-top: 30px;          /* 拉開上方距離 */
+    border: 2px solid #333;    /* 這是你的外框線 */
+    border-radius: 12px;       /* 圓角設定 */
     
+    /* 核心修正：必須分開邊框，圓角才不會失效 */
+    border-collapse: separate; 
+    border-spacing: 0;         /* 讓內部的格線看起來還是連在一起的 */
+    
+    overflow: hidden;          /* 確保內部的背景色不會刺破圓角外框 */
+    width: 100%;
 }
 
-
-
-
-.dropdown {
-display:inline-block;
-height: 30px;
-z-index: 2;
+/* 標頭下方的橫線 */
+.tablelist th {
+    border-bottom: 1px solid #333;
+    padding: 10px;
+    background-color: #f8f9fa;
 }
 
-/* 定義 Item 的寬高，margin-top:-1px 讓線重疊，調整間距 */
-.dropdown .item {
-width: 180px;
-height: 30px;
-border: 1px solid #ccc;
-margin: -1px 0px 0px;
-padding: 0px 10px;
-box-sizing: border-box;
-box-shadow: 0 0 3px #ccc;
-background: #fff;
+/* 內容格的線條（如果你想要格線的話） */
+.tablelist td {
+    border-bottom: 1px solid #eee;
+    padding: 8px;
 }
 
-/* 讓第二個之後的Item隱藏 */
-.dropdown .item + .item{
-display:none;
-}
-
-/* 滑鼠移到任何Item時，顯示 */
-.dropdown:hover .item {
-display: block;
-}
-
-/* 讓文字垂直置中 */
-.dropdown .text label,
-.dropdown .item span,
-.dropdown .item input[type="checkbox"] {
-line-height: 30px;
-}
-
-/* 讓lebal為空的時候顯示文字 */
-.dropdown .text label:empty:after {
-content: '請選擇項目';
-color: #ccc;
-}
-.multi-selector {
-  width: 0px;
-  height: 0px;
-  opacity: 0;
+/* 移除最後一行的底線，避免它跟圓角外框重疊 */
+.tablelist tr:last-child td {
+    border-bottom: none;
 }

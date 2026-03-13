@@ -22,11 +22,10 @@ async function checkLoginStatus() {
 
         if (userRole === "Staff_Nurse") {
 
-            const container1 = document.querySelector("#container1");
+           
             const setting = document.querySelector("#setting");
             const autocalendar = document.querySelector("#autocalendar");
 
-            container1.style.display = "none";
             setting.style.display = "none";
             autocalendar.style.display = "none";
         }else if (userRole === "IT_Admin") {

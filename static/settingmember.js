@@ -21,8 +21,8 @@ async function getStaffData() {
                 div.className = "checkbox-group";
             div.innerHTML = 
               `
-                <input type="checkbox" id="${staff[0]}" class="checkbox-name" name="${staff[1]}" />
-                <label for="${staff[1]}">${staff[1]}</label>
+                <input type="checkbox" id="${staff.id}" class="checkbox-name" name="${staff.full_name}" />
+                <label for="${staff.full_name}">${staff.full_name}</label>
             `;
             container.appendChild(div);
         });
@@ -133,7 +133,7 @@ async function saveSettingmember(){
     const result = await response.json();
     if (response.ok && result.data !== null){
         alert("儲存成功！");
-        window.location.href="/main"
+        window.location.href="/setting1"
     }
 }
 
