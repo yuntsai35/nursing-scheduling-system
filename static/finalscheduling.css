@@ -1,6 +1,7 @@
 body{
   font-family: "Chiron GoRound TC", sans-serif;
   font-optical-sizing: auto;
+  background-color: #F8FAFC;
 }
 
 
@@ -81,12 +82,14 @@ body{
 }
 .tablelist thead th {
     width: 40px; 
-    height: 30px; /* 如果想要變正方形可以加高度 */
+    height: 30px; 
 }
 .staff{
     width:70px;
     height:30px;
 }
+
+
 
 .tablelist {
     margin-top: 30px;          /* 拉開上方距離 */

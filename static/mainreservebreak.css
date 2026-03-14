@@ -1,6 +1,7 @@
 body{
   font-family: "Chiron GoRound TC", sans-serif;
   font-optical-sizing: auto;
+  background-color: #F8FAFC;
 }
 
 .navbar{
@@ -50,5 +51,7 @@ body{
 }
 
 .date-card:hover {
-    border: 1px solid #ffbb80; /* 變成藍色 */
+  background-color: #F0F9FF;
+  border-color: #005fb8;     
+  transform: translateY(-5px);  
 }

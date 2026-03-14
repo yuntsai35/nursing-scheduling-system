@@ -36,12 +36,11 @@ main {
   margin: 10px;
 }
 .container-bottom:hover {
-  background-color: #F0F9FF; /* 淺藍色背景 */
-  border-color: #005fb8;     /* 邊框變換為主題藍 */
-  transform: translateY(-5px); /* 輕微上浮 */
+  background-color: #F0F9FF; 
+  border-color: #005fb8;     
+  transform: translateY(-5px); 
   
 }
-
 
 .container-bottom-text{
   margin: 10px auto;

@@ -1,9 +1,10 @@
 body{
   font-family: "Chiron GoRound TC", sans-serif;
   font-optical-sizing: auto;
+  background-color: #F8FAFC;
 }
 
-
+/*navbar*/
 .navbar{
   border-bottom: 1px solid #e2e8f0;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
@@ -111,4 +112,37 @@ main{
 
 input{
     border-radius: 10px;
+}
+
+/*table*/
+.table {
+    width: 100%;
+    border-collapse: separate; 
+    border-spacing: 0;        
+    border: 1px solid #dee2e6; 
+    border-radius: 12px;       
+    overflow: hidden;          
+    margin-top: 20px;
+}
+
+
+.table th, 
+.table td {
+    border-bottom: 1px solid #E2E8F0;
+    border-right: 1px solid #E2E8F0;
+    padding: 12px 15px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+
+.table th:last-child, 
+.table td:last-child {
+    border-right: none;
+}
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+.table th {
+    background-color: #E2E8F0; 
 }

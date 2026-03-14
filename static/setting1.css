@@ -1,6 +1,7 @@
 body{
   font-family: "Chiron GoRound TC", sans-serif;
   font-optical-sizing: auto;
+  background-color: #F8FAFC;
 }
 
 .navbar{
@@ -30,9 +31,10 @@ body{
 }
 
 
-.title{
+.title-group{
     font-size: 26px;
     margin-top: 20px;
+    margin-bottom: 20px;
 }
 
 .main-container{
