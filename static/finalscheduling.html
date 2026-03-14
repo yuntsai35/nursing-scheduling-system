@@ -9,7 +9,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Chiron+GoRound+TC:wght@200..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/settingmember.css">
+    <link rel="stylesheet" href="/static/finalscheduling.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
 </head>
 <body>
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
@@ -38,55 +39,26 @@
   </div>
 </nav>
 
-  <main>
-    <div class="title">自動排班設定</div>
-    <div class="title-explain" style="color: #005fb8;font-size: 20px;">步驟二: 選擇建立的年分及月分</div>
-    <div class="main-container-top">
-      <div class="options">
-        <div class="title">選擇建立的年分及月分</div>
-        <div class="date-selector-group" style="display: flex; gap: 10px; align-items: center;">
-        <div>年份：</div>
-        <select id="select-year" class="form-select" style="width: auto;">
-            </select>
-        
-        <div>月份：</div>
-        <select id="select-month" class="form-select" style="width: auto;">
-            <option value="1">1月</option>
-            <option value="2">2月</option>
-            <option value="3">3月</option>
-            <option value="4">4月</option>
-            <option value="5">5月</option>
-            <option value="6">6月</option>
-            <option value="7">7月</option>
-            <option value="8">8月</option>
-            <option value="9">9月</option>
-            <option value="10">10月</option>
-            <option value="11">11月</option>
-            <option value="12">12月</option>
-        </select>
-        <span id="days-info" style="color: #666; margin-left: 10px;"></span>
-        </div>
-      </div>
-    </div>   
+    <main>
+    <div>
+        <div class="title" style="display: flex;"><div id="reservemonth" style="margin-right: 10px;"></div>護理人力預假申請</div>
+        <div class="selector">
+          <select class="form-control" name="choices-multiple-remove-button" id="choices-multiple-remove-button" placeholder="This is a placeholder" multiple>
 
+          </select>
+          <button class="btn-group-edit" onclick="updateleavedates()">安排預假日期</button>
+        </div>
 
-    <div class="main-container">
-      <div class="options">
-        <div class="title">本月參與排班人員</div>
-        <div class="formGroup">
-            <input type="checkbox" class="checkAll" />
-            <label>全選</label>
-        </div>
-        <div class="container-setting">
-        </div>
-    <div class="btn-group">
-    <button class="btn-group-edit" onclick="lastpage()">回到上一頁</button>
-    <button class="btn-group-save" onclick="saveSettingmember()">前往班別人數設定</button>
+        <table class="tablelist">
+          
+        </table>
     </div>
-  </div>
-  </div>  
-  </main>
-    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
-    <script src="/static/settingmember.js"></script>
-  </body>
+    <div class="btn">
+    <button class="btn-group-save">產生班表</button>
+    </div>
+    </main>
+<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.7.3/dist/alpine.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+<script src="static/reservebreak.js"></script>
+</body>
 </html>

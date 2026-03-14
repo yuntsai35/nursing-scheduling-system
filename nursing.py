@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 #sqlalchemy
-from db_test import engine, Base, staff, scheduled_member, settingtime, staff_number_schedule, SessionLocal
+from db_test import engine, Base, staff, scheduled_member, settingtime, staff_number_schedule,finalscheduletable, SessionLocal
 from sqlalchemy import desc,asc
 
 app=FastAPI()
@@ -45,6 +45,12 @@ async def index(request: Request):
 @app.get("/reservebreak", include_in_schema=False)
 async def index(request: Request):
 	return FileResponse("./static/reservebreak.html", media_type="text/html")
+@app.get("/mainfinalscheduling", include_in_schema=False)
+async def index(request: Request):
+	return FileResponse("./static/mainfinalscheduling.html", media_type="text/html")
+@app.get("/finalscheduling", include_in_schema=False)
+async def index(request: Request):
+	return FileResponse("./static/finalscheduling.html", media_type="text/html")
 
 
 
@@ -115,8 +121,8 @@ async def login(request:Request,body: dict = Body(...)):
 async def get_staff_list(request: Request, role: str = None):
     db=SessionLocal()
     try:
-        if role == 'adminstaff':
-             results=db.query(staff).filter(staff.role =='Head_Nurse').order_by(asc(staff.employee_num)).all()
+        if role == 'generalstaff':
+             results=db.query(staff).filter(staff.role =='Staff_Nurse').order_by(asc(staff.employee_num)).all()
         else:
              results=db.query(staff).filter(staff.role =='Staff_Nurse').order_by(asc(staff.employee_num)).all()
         
@@ -331,7 +337,7 @@ async def updatesettingtime(request:Request, body: dict = Body(...)):
     finally:
          db.close()
 
-
+#看要不要刪除
 @app.get("/api/settingtime")
 async def savesettingtime(request: Request):
     db=SessionLocal()
@@ -417,6 +423,7 @@ async def showstaff(request: Request):
 			)
     finally:
          db.close()
+
 
 @app.post("/api/settingmember")
 async def updatesettingmember(request:Request, body: dict = Body(...)):
@@ -526,6 +533,7 @@ async def insertsettingstaffnumber(request:Request, body: dict = Body(...)):
 			)
     finally:
          db.close()
+
 
 @app.get("/api/date")
 async def reservemonth(request: Request):
@@ -640,4 +648,227 @@ async def updateReserveBreak(request:Request, body: dict = Body(...)):
 			)
     finally:
          db.close()
-     
+
+#自動排班功能之後要將get改成post喔
+from ortools.sat.python import cp_model
+
+@app.post("/api/finalscheduling/{date}")
+async def final_scheduling(request: Request, date: str = None):
+    db = SessionLocal()
+
+    ward="N17"
+    
+    #主要排班的成員需求
+    members = db.query(scheduled_member, staff.full_name).\
+        join(staff, scheduled_member.staff_id == staff.id).\
+        filter(scheduled_member.ward == ward, 
+               scheduled_member.schedule_id == date).all()
+
+    #時間需求
+    time = db.query(settingtime).filter(settingtime.ward == ward).first()
+    
+    #三班需求
+    requirements = db.query(staff_number_schedule).filter(
+        staff_number_schedule.ward == ward
+    ).all()
+
+    num_nurses = len(members)
+    num_shifts = len(requirements)+1
+    num_days = int(members[0][0].schedule_date)
+    all_nurses = range(num_nurses)
+    all_shifts = range(num_shifts)
+    all_days = range(num_days)
+
+    model = cp_model.CpModel()
+
+    shifts = {}
+    for n in all_nurses:
+        for d in all_days:
+            for s in all_shifts:
+                shifts[(n, d, s)] = model.NewBoolVar(f'n{n}_d{d}_s{s}')
+
+    
+    # (休 + 早 + 中 + 晚) 只能有一個是 1
+    for n in all_nurses:
+        for d in all_days:
+            # 更加語意化，且執行效能通常較優
+            model.add_exactly_one(shifts[(n, d, s)] for s in all_shifts)
+        
+    #每天白班要有6個人
+    for d in all_days:
+        # 白班 (s=1) 要 6 人
+        model.Add(sum(shifts[(n, d, 1)] for n in all_nurses) == 6)
+        
+        # 小夜 (s=2) 要 4 人
+        model.Add(sum(shifts[(n, d, 2)] for n in all_nurses) == 4)
+        
+        # 大夜 (s=3) 要 3 人
+        model.Add(sum(shifts[(n, d, 3)] for n in all_nurses) == 3)
+    
+    # 一個月內必須有的最少休息天數
+    min_off_1m = int(time.min_rest_1m) # 9
+    for n in all_nurses:
+        # 加總所有休假天數 (s=0) 必須 >= 9
+        model.Add(sum(shifts[(n, d, 0)] for d in all_days) >= min_off_1m)
+
+    # 連續工作上限，第 7 天強制休息
+    max_consecutive = int(time.max_continuous_work) # 6
+    for n in all_nurses:
+        for d in range(num_days - max_consecutive):
+            # 在任意連續的 7 天內，至少要有一天是休假 (s=0)
+            model.Add(sum(shifts[(n, d + i, 0)] for i in range(max_consecutive + 1)) >= 1)
+        
+    # 勞基法 14 天內應有 4 天休息 (例假+休息日)
+    min_off_2w = int(time.min_rest_2w) # 4
+    for n in all_nurses:
+        for d in range(num_days - 13):
+            # 任意連續 14 天內，休假天數 (s=0) 必須 >= 4
+            model.Add(sum(shifts[(n, d + i, 0)] for i in range(14)) >= min_off_2w)
+    
+    #班次最短間隔時數
+    for n in all_nurses:
+        for d in range(num_days - 1):
+            # 如果第 d 天上小夜 (s=2)，第 d+1 天不能上白班 (s=1)
+            model.Add(shifts[(n, d, 2)] + shifts[(n, d + 1, 1)] <= 1)
+            # 如果第 d 天上大夜 (s=3)，第 d+1 天不能上白班 (s=1)
+            model.Add(shifts[(n, d, 3)] + shifts[(n, d + 1, 1)] <= 1)
+        
+    for n in all_nurses:
+        for d in range(num_days - 6):
+            # 任意 7 天內，上班總數 (s != 0) 不得超過 5 班
+            # 換句話說，休假 (s=0) 必須 >= 2 天
+            model.Add(sum(shifts[(n, d + i, 0)] for i in range(7)) >= 2)
+    
+    for n in all_nurses:
+        for d in range(num_days - 6): # 以每一週為滑動視窗
+            # 建立三個輔助變數，代表這 7 天內有沒有上過 s=1, 2, 3 班
+            used_s1 = model.NewBoolVar(f'used_s1_n{n}_d{d}')
+            used_s2 = model.NewBoolVar(f'used_s2_n{n}_d{d}')
+            used_s3 = model.NewBoolVar(f'used_s3_n{n}_d{d}')
+
+            for i in range(7):
+                # 邏輯連結：如果第 d+i 天上了 s=1，則 used_s1 必須為 1
+                model.Add(used_s1 >= shifts[(n, d + i, 1)])
+                model.Add(used_s2 >= shifts[(n, d + i, 2)])
+                model.Add(used_s3 >= shifts[(n, d + i, 3)])
+
+            # 核心限制：這三種班別的開關加起來，不能超過你設定的「2」
+            model.Add(used_s1 + used_s2 + used_s3 <= 2)
+
+    solver = cp_model.CpSolver()
+    solver.parameters.max_time_in_seconds = 10.0
+    status = solver.Solve(model)
+    if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+        final_schedule = []
+        for d in all_days:
+            day_data = {"day": d + 1, "staff": []}
+            for n in all_nurses:
+                nurse_name = members[n][1] # 從你之前的 query 拿名字
+                for s in all_shifts:
+                    if solver.Value(shifts[(n, d, s)]) == 1:
+                        # 0:休, 1:早, 2:中, 3:晚 (根據你的 requirements 排序)
+                        day_data["staff"].append({
+                            "name": nurse_name,
+                            "shift_type": s
+                        })
+            final_schedule.append(day_data)
+    
+        try:
+            # A. 執行資料轉換：從「天」結構轉成「人」結構
+            organized_storage = {}
+            for day_entry in final_schedule:
+                d_str = str(day_entry["day"])
+                for s_info in day_entry["staff"]:
+                    name = s_info["name"]
+                    if name not in organized_storage:
+                        # 從 members 中找到對應的 staff_id
+                        sid = next(m[0].staff_id for m in members if m[1] == name)
+                        organized_storage[name] = {"id": sid, "data": {}}
+                    organized_storage[name]["data"][d_str] = s_info["shift_type"]
+
+            # B. 寫入資料庫 (一人一列)
+            # 建議先刪除該月份舊班表，避免重複存檔
+            db.query(finalscheduletable).filter(
+                finalscheduletable.ward == ward, 
+                finalscheduletable.year_month == date
+            ).delete()
+
+            for name, info in organized_storage.items():
+                new_record = finalscheduletable(
+                    staff_id=info["id"],
+                    name=name,
+                    year_month=date,
+                    ward=ward,
+                    schedule_data=info["data"] # PostgreSQL JSONB 欄位
+                )
+                db.add(new_record)
+            
+            db.commit() # 正式寫入資料庫
+            return {"ok":True}
+
+        except Exception as e:
+            db.rollback() # 出錯時回滾，保護資料
+            return {"status": "error", "message": f"儲存失敗: {str(e)}"}
+        finally:
+            db.close() # 務必關閉資料庫連線
+
+    else:
+        db.close()
+        return {
+            "status": "error",
+            "message": "在當前限制下找不到可行解",
+        }
+    
+@app.get("/api/finalmonth")
+async def finalmonth(request: Request):
+    db=SessionLocal()
+    try:
+        results = db.query(finalscheduletable.year_month).distinct().order_by(finalscheduletable.year_month.desc()).all()
+        date_list = []
+        for result in results:
+            date_list.append(result[0])
+        
+        return {
+            "data": {
+                "date": date_list
+            }
+        }
+    except HTTPException:
+            raise HTTPException(
+				status_code=500,
+				detail={
+					"error": True,
+					"message": "請依照情境提供對應的錯誤訊息"
+				}
+			)
+    finally:
+         db.close()
+
+
+#抓date資料
+@app.get("/api/finalstaff/{date}")
+async def getreservestaff(request: Request,date: str = None):
+    db=SessionLocal()
+    ward = "N17"
+
+    try:
+        results = db.query(finalscheduletable.name,finalscheduletable.schedule_data).filter(finalscheduletable.year_month == date,finalscheduletable.ward == ward).all()
+        formatted_data = []
+        for row in results:
+            formatted_data.append({
+                "schedule_date": row.name,
+                "full_name": row.schedule_data,
+            })
+            
+        return {"data": formatted_data}
+    except HTTPException:
+            raise HTTPException( 
+				status_code=500,
+				detail={
+					"error": True,
+					"message": "請依照情境提供對應的錯誤訊息"
+				}
+			)
+    finally:
+         db.close()
+

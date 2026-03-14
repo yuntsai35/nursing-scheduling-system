@@ -9,23 +9,28 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Chiron+GoRound+TC:wght@200..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/main.css">
     <link rel="stylesheet" href="/static/setting.css">
 </head>
 <body>
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
   <div class="container-fluid">
-    <a class="navbar-brand" href="#" style="display:flex; align-items: center;"><span class="material-symbols-outlined" style="margin-right: 10px;">blood_pressure</span> 護理人員排班系統</a>
+    <a class="navbar-brand" href="/main" style="display:flex; align-items: center;"><span class="material-symbols-outlined" style="margin-right: 10px;">blood_pressure</span> 護理人員排班系統</a>
     <div class="collapse navbar-collapse" id="navbarText">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="#">排班</a>
+          <a class="nav-link" href="/main">首頁</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#"></a>
+          <a class="nav-link" id="nav-staffmanagement" onclick="staff(generalstaff)" >人員管理</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#">班別設定</a>
+          <a class="nav-link" id="nav-setting" href="/setting">自動排班</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/mainreservebreak">員工班表預假</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/mainfinalscheduling">員工班表</a>
         </li>
       </ul>
       <span class="navbar-Text" style="display:flex; align-items: center;" onclick="logout()"><span class="material-symbols-outlined">logout</span><span id="username">Username</span></span>
@@ -35,7 +40,8 @@
 
     <main>
     <div class="main-container">
-        <div class="title">排班需求</div>
+        <div class="title">自動排班設定</div>
+        <div class="title-explain" style="color: #005fb8;font-size: 20px;">步驟一: 設定工時與休假規則</div>
         <div class="group">
         <div class="container-setting">
         <div>班次最短間隔時數</div>

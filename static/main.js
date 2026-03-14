@@ -21,20 +21,20 @@ async function checkLoginStatus() {
       const userRole = result.data.role;
 
         if (userRole === "Staff_Nurse") {
-
-           
+            const navbarsetting = document.querySelector("#nav-setting");
+            const navbarautocalendar = document.querySelector("#nav-staffmanagement");
+            
             const setting = document.querySelector("#setting");
-            const autocalendar = document.querySelector("#autocalendar");
+            const autocalendar = document.querySelector("#staffmanagement");
+            const step3 = document.querySelector("#step3");
 
             setting.style.display = "none";
             autocalendar.style.display = "none";
-        }else if (userRole === "IT_Admin") {
-            
-            const container2 = document.querySelector("#container2");
-            container2.style.display = "none";
+            step3.style.display="none";
+            navbarsetting.style.display = "none";
+            navbarautocalendar.style.display = "none";
         }
       
-
     } else {
       window.location.href = "/";
     }
@@ -63,3 +63,9 @@ function mainreservebreak() {
     window.location.href = "/mainreservebreak";
 }
 
+function mainfinalscheduling() {
+    window.location.href = "/mainfinalscheduling";
+}
+function main(){
+    Window.location.herf="/"
+}

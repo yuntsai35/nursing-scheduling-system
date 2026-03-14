@@ -20,12 +20,6 @@ async function checkLoginStatus() {
 
       const role=result.data.role;
       window.currentUserRole = role;
-      if(role =="Head_Nurse"){
-        let operation=document.querySelector("#operation");
-        operation.style.display="none";
-        const insertBtn=document.querySelector("#addStaff-btn");
-        insertBtn.style.display="none";
-      }
       return role;
       
     } else {
@@ -65,29 +59,16 @@ async function getStaffData() {
                 <td>${staff.level}</td> 
                 <td>${staff.ward}</td>
                 <td>${staff.join_date}</td>
-            `;
-            tbody.appendChild(tr);
-        })
 
-        }else{
-
-        staffList.forEach(staff => {
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-                <td>${staff.employee_num}</td> 
-                <td>${staff.full_name}</td>
-                <td>${staff.role}</td>
-                <td>${staff.level}</td> 
-                <td>${staff.ward}</td>
-                <td>${staff.join_date}</td>
-                
                 <td class="button">
                     <button class="btn btn-sm btn-outline-primary" id="editStaff-btn" onclick='openmodal("edit",${JSON.stringify(staff)})'>編輯</button>
                     <button class="btn btn-sm btn-outline-danger" id="${staff.id}" onclick="deletestaffinfo(${staff.id})">刪除</button>
                 </td>
             `;
             tbody.appendChild(tr);
-        })};
+        })
+
+        };
     } else {
         console.error("無法取得員工資料");
     }

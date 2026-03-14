@@ -9,7 +9,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Chiron+GoRound+TC:wght@200..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/settingmember.css">
+    <link rel="stylesheet" href="/static/main.css">
+    <link rel="stylesheet" href="/static/mainreservebreak.css">
 </head>
 <body>
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
@@ -38,55 +39,15 @@
   </div>
 </nav>
 
-  <main>
-    <div class="title">自動排班設定</div>
-    <div class="title-explain" style="color: #005fb8;font-size: 20px;">步驟二: 選擇建立的年分及月分</div>
-    <div class="main-container-top">
-      <div class="options">
-        <div class="title">選擇建立的年分及月分</div>
-        <div class="date-selector-group" style="display: flex; gap: 10px; align-items: center;">
-        <div>年份：</div>
-        <select id="select-year" class="form-select" style="width: auto;">
-            </select>
-        
-        <div>月份：</div>
-        <select id="select-month" class="form-select" style="width: auto;">
-            <option value="1">1月</option>
-            <option value="2">2月</option>
-            <option value="3">3月</option>
-            <option value="4">4月</option>
-            <option value="5">5月</option>
-            <option value="6">6月</option>
-            <option value="7">7月</option>
-            <option value="8">8月</option>
-            <option value="9">9月</option>
-            <option value="10">10月</option>
-            <option value="11">11月</option>
-            <option value="12">12月</option>
-        </select>
-        <span id="days-info" style="color: #666; margin-left: 10px;"></span>
-        </div>
-      </div>
-    </div>   
-
-
+    <main>
     <div class="main-container">
-      <div class="options">
-        <div class="title">本月參與排班人員</div>
-        <div class="formGroup">
-            <input type="checkbox" class="checkAll" />
-            <label>全選</label>
+        <div class="title">員工橫式班表</div>
+        <div class="month-group">
         </div>
-        <div class="container-setting">
-        </div>
-    <div class="btn-group">
-    <button class="btn-group-edit" onclick="lastpage()">回到上一頁</button>
-    <button class="btn-group-save" onclick="saveSettingmember()">前往班別人數設定</button>
+
     </div>
-  </div>
-  </div>  
-  </main>
-    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
-    <script src="/static/settingmember.js"></script>
-  </body>
+    </main>
+
+<script src="static/mainfinalscheduling.js"></script>
+</body>
 </html>

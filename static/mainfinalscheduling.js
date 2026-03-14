@@ -33,10 +33,10 @@ async function checkLoginStatus() {
 window.addEventListener("load", checkLoginStatus);
 
 
-async function getReserveMonth() {
+async function getfinal() {
 
     const token = localStorage.getItem("token");
-    const response = await fetch(`/api/date`, {
+    const response = await fetch(`/api/finalmonth`, {
         method: "GET",
         headers: {
             "Authorization": `Bearer ${token}`
@@ -49,10 +49,10 @@ async function getReserveMonth() {
 
         result.forEach(item => {
             const newDiv = document.createElement("div");
-            newDiv.textContent = item+"護理人力預假班表";
+            newDiv.textContent = item+"護理人力班表";
             newDiv.className = "date-card";
             newDiv.onclick = function() {
-                reservebreak(item);
+                final(item);
             };
             dateSelect.appendChild(newDiv);
         });
@@ -60,9 +60,9 @@ async function getReserveMonth() {
         console.error("無法取得員工資料");
     }
 }
-getReserveMonth();
+getfinal();
 
-function reservebreak(date) {
-    window.location.href = `/reservebreak?date=${date}`;
+function final(date) {
+    window.location.href = `/finalscheduling?date=${date}`;
 }
 

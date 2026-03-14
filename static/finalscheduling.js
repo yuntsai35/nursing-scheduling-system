@@ -38,15 +38,6 @@ const urlParams = new URLSearchParams(window.location.search);
 const month = urlParams.get('date');
 document.querySelector("#reservemonth").textContent=month+"月";
 
-// 頁面載入時先初始化空的 Choices
-document.addEventListener('DOMContentLoaded', function() {
-    leaveChoicesInstance = new Choices('#choices-multiple-remove-button', {
-        removeItemButton: true,
-        placeholderValue: '請選擇預假日期'
-    });
-});
-
-
 //人名資料scheduled_member
 async function getStaffData() {
     const token = localStorage.getItem("token"); 
@@ -108,40 +99,3 @@ async function getStaffData() {
         };
 }
 getStaffData();
-
-async function updateleavedates(){
-    const token = localStorage.getItem("token"); 
-    const leave_dates= leaveChoicesInstance.getValue(true);
-    const reserve_dates = leave_dates.join(",");
-    const response = await fetch(`/api/settingReserveBreak`, {
-        method: "PATCH",
-        headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json"
-        },
-        body:JSON.stringify({"reserve_dates":reserve_dates,"schedule_id":month})
-    });
-    const result = await response.json();
-        
-    if (response.ok && result.ok){
-        window.location.reload();
-    }
-}
-
-async function finalscheduling(){
-    const token = localStorage.getItem("token"); 
-    const response = await fetch(`/api/finalscheduling/${month}`, {
-        method: "POST",
-        headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json"
-        },
-        body:JSON.stringify({"schedule_id":month})
-    });
-    const result = await response.json();
-        
-    if (response.ok && result.ok){
-    window.location.href = `/finalscheduling?date=${month}`;
-
-    }
-}

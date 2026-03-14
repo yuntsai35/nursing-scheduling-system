@@ -1,3 +1,38 @@
+function logout() {
+    localStorage.removeItem("token");
+    window.location.href = "/";
+}
+async function checkLoginStatus() {
+    const token = localStorage.getItem("token");
+
+    let response = await fetch("/api/user/auth", {
+        method: "GET",
+        headers: {
+            "Authorization": `Bearer ${token}` 
+        }
+    });
+
+    const result = await response.json();
+
+    if (response.ok && result.data !== null) {
+      document.querySelector("#username").textContent = result.data.full_name;
+      
+      const userRole = result.data.role;
+
+        if (userRole === "Staff_Nurse") {
+            const navbarsetting = document.querySelector("#nav-setting");
+            const navbarautocalendar = document.querySelector("#nav-staffmanagement");
+            navbarsetting.style.display = "none";
+            navbarautocalendar.style.display = "none";
+        }
+      
+    } else {
+      window.location.href = "/";
+    }
+}
+window.addEventListener("load", checkLoginStatus);
+
+
 async function saveSettingtime(){
     const token = localStorage.getItem("token"); 
     const min_shift_interval= document.getElementById("min_shift_interval").value;

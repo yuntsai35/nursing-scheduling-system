@@ -14,41 +14,55 @@
 <body>
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
   <div class="container-fluid">
-    <a class="navbar-brand" href="#" style="display:flex; align-items: center;"><span class="material-symbols-outlined" style="margin-right: 10px;">blood_pressure</span> 護理人員排班系統</a>
+    <a class="navbar-brand" href="/main" style="display:flex; align-items: center;"><span class="material-symbols-outlined" style="margin-right: 10px;">blood_pressure</span> 護理人員排班系統</a>
     <div class="collapse navbar-collapse" id="navbarText">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="#">排班</a>
+          <a class="nav-link" href="/main">首頁</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#"></a>
+          <a class="nav-link" id="nav-staffmanagement" onclick="staff(generalstaff)" >人員管理</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#">班別設定</a>
+          <a class="nav-link" id="nav-setting" href="/setting">自動排班</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/mainreservebreak">員工班表預假</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/mainfinalscheduling">員工班表</a>
         </li>
       </ul>
       <span class="navbar-Text" style="display:flex; align-items: center;" onclick="logout()"><span class="material-symbols-outlined">logout</span><span id="username">Username</span></span>
     </div>
   </div>
 </nav>
-<main>
-    <div class="container" id="container1">
-        <div class="container-bottom">
-            <div class="container-bottom-text" id="adminstaff" style="display:flex; align-items: center;" onclick="staff(adminstaff)"><span class="material-symbols-outlined">supervisor_account</span>使用者管理</div>
-            <div class="container-bottom-text" id="generalstaff" style="display:flex; align-items: center;" onclick="staff(generalstaff)"><span class="material-symbols-outlined">manage_accounts</span>人員管理</div>
-        </div>
-    <div class="container" id="container2">
 
-        <div class="container-bottom">
-            <div class="container-bottom-text" id="autocalendar" style="display:flex; align-items: center;" onclick="setting()"><span class="material-symbols-outlined">calendar_clock</span>自動排班</div>
-            <div class="container-bottom-text" id="requestbreak" style="display:flex; align-items: center;" onclick="mainreservebreak()"><span class="material-symbols-outlined">free_cancellation</span>員工橫式班表預假</div>
+<main>
+  <div class="main-container">
+        <div class="container-bottom" id="staffmanagement" onclick="staff(generalstaff)">
+            <span class="material-symbols-outlined" id="icon" onclick="staff(generalstaff)">manage_accounts</span>
+            <div class="container-bottom-text" id="generalstaff" style="display:flex; align-items: center;font-weight: bold;">第一步: 人員管理</div>
+            <div class="container-bottom-explain">新增入職員工、調整護理職級(N0-N4)。排班前先確定單位人員名單。</div>
         </div>
-    </div>
-    <div class="container" id="container3">
-        <div class="container-bottom">
-            <div class="container-bottom-text" style="display:flex; align-items: center;"><span class="material-symbols-outlined">calendar_check</span>員工橫式班表</div>
+
+        <div class="container-bottom" id="setting" onclick="setting()">
+          <span class="material-symbols-outlined" id="icon" >calendar_clock</span>
+          <div class="container-bottom-text" id="autocalendar" style="display:flex; align-items: center;font-weight: bold;">第二步: 自動排班</div>
+          <div  class="container-bottom-explain">工時等客製化設定。點擊後，系統會根據人員職級與預假，自動排出符合設定的班表。</div>
         </div>
-    </div>
+        <div class="container-bottom"onclick="mainreservebreak()">
+          <span class="material-symbols-outlined" id="icon">free_cancellation</span>
+          <div class="container-bottom-text" id="requestbreak" style="display:flex; align-items: center;font-weight: bold;"><div id="step3" style="margin-right: 10px;">第三步:</div>預假管理</div>
+          <div  class="container-bottom-explain">匯集所有員工的預假申請。在自動排班前先固定這些假期，進行符合期望的班表。</div>
+        </div>
+        <div class="container-bottom"onclick="mainfinalscheduling()">
+          <span class="material-symbols-outlined" id="icon">calendar_check</span>
+          <div class="container-bottom-text" style="display:flex; align-items: center;font-weight: bold;">員工班表</div>
+          <div class="container-bottom-explain">查看已完成的橫式班表且護理師可查看。</div>
+          <br>
+        </div>
+  </div>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 <script src="/static/main.js"></script>

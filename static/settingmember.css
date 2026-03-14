@@ -3,6 +3,33 @@ body{
     font-optical-sizing: auto;
 }
 
+.navbar{
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  padding: 10px 20px;
+}
+
+.navbar-brand {
+  color: #005fb8 !important;
+  font-weight: bold;
+}
+.nav-item:hover, 
+.nav-item.active { 
+  background-color: #E3F2FD !important;
+  border-radius: 5px;
+}
+
+.nav-item:hover .nav-link, 
+.nav-item.active .nav-link {
+  color: #005fb8 !important;
+  font-weight: bold !important;
+}
+
+.navbar.bg-body-tertiary {
+  background-color: #FFFFFF !important;
+}
+
+
 .main-container {
     max-width: 750px; 
     width: 90%;       

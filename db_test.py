@@ -5,7 +5,7 @@ load_dotenv()
 #sqlalchemy
 from sqlalchemy import create_engine, Column, Integer, String, Enum, Date, Boolean, Text, DECIMAL, ForeignKey
 from sqlalchemy.orm import declarative_base, sessionmaker, relationship
-
+from sqlalchemy.dialects.postgresql import JSONB
 
 SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URL")
 engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=True)
@@ -66,6 +66,16 @@ class staff_number_schedule(Base):
      shift_staff_number = Column(Integer, nullable=False)
      staff_id = Column(Text)
      ward = Column(String(30), nullable=False)
+
+class finalscheduletable(Base):
+    __tablename__ = "final_schedule"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    staff_id = Column(Integer, nullable=False)    # 護理師 ID
+    name = Column(String(50), nullable=False)     # 姓名
+    year_month = Column(String(20), nullable=False, index=True) # 2026-03
+    ward = Column(String(20), nullable=False)      # N17
+    schedule_data = Column(JSONB, nullable=False) # 重點：使用 JSONB 存儲整個月的班次 {"1": 0, "2": 1, ...}
      
 # if not exists,create
 Base.metadata.create_all(engine)
