@@ -38,16 +38,18 @@
   </div>
 </nav>
 
-    <main>
-    <div>
+    <div class="main">
+        <div class="main-container">
         <div class="title-group">
-          <div class="title">自動排班設定</div>
+          <div class="main-title">自動排班設定</div>
           <div class="title-explain" style="color: #005fb8;font-size: 18px;">步驟三: 班別人數設定</div>
         </div>
+        <div class="group-container">
+            <div class="title">每班人數設定</div>
         <div class="group">
         <div class="container-setting">
-        <div class="container-setting-title" id="白班">白班</div>
-        <div>白班本月需要的員工數</div>
+            <div class="container-setting-title" id="白班">白班</div>
+            <div>白班本月需要的員工數</div>
         </div>
         <div class="input-container">
             <input type="number" id="required_dayshift" name="required_dayshift" placeholder="請輸入數字">
@@ -74,7 +76,7 @@
         </div>
         </div>
     </div>
-    <div>
+    <div class="group-container" style="margin-top: 20px;">
         <div class="title">包班需求</div>
             <div class="container">
                 <div class="group">
@@ -105,10 +107,13 @@
             </div>
         </div>
 
-    <div class="btn">
+    <div class="btn-group">
+    <button class="btn-group-edit" onclick="lastpage()">回到上一頁</button>
     <button class="btn-group-save" onclick="saveSettingmember()">儲存設定</button>
     </div>
-    </main>
+    </div>
+    </div>
+    </div>
 <script src="/static/setting1.js"></script>
 </body>
 </html>

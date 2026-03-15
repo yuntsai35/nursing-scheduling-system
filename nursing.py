@@ -36,9 +36,6 @@ async def index(request: Request):
 @app.get("/settingmember", include_in_schema=False)
 async def index(request: Request):    
 	return FileResponse("./static/settingmember.html", media_type="text/html")
-@app.get("/membership", include_in_schema=False)
-async def index(request: Request):
-	return FileResponse("./static/membership.html", media_type="text/html")
 @app.get("/mainreservebreak", include_in_schema=False)
 async def index(request: Request):
 	return FileResponse("./static/mainreservebreak.html", media_type="text/html")

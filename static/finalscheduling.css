@@ -31,6 +31,17 @@ body{
   background-color: #FFFFFF !important;
 }
 
+main{
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+.main-container {
+    max-width: 1200px;
+    width: 100%; 
+}
+
+
 
 .title{
     font-size: 26px;
@@ -80,44 +91,43 @@ body{
 .container{
     display:flex;    
 }
-.tablelist thead th {
-    width: 40px; 
-    height: 30px; 
-}
-.staff{
+
+.tablelist .staff{
     width:70px;
+    border-right:1px solid #eee;
+}
+.tablelist th{
+    width: 30px;
     height:30px;
 }
 
-
-
 .tablelist {
-    margin-top: 30px;          /* 拉開上方距離 */
-    border: 2px solid #333;    /* 這是你的外框線 */
-    border-radius: 12px;       /* 圓角設定 */
-    
-    /* 核心修正：必須分開邊框，圓角才不會失效 */
+    margin-top: 30px;        
+    border: 2px solid #333;   
+    border-radius: 12px;     
     border-collapse: separate; 
-    border-spacing: 0;         /* 讓內部的格線看起來還是連在一起的 */
-    
-    overflow: hidden;          /* 確保內部的背景色不會刺破圓角外框 */
+    border-spacing: 0;         
+    overflow: hidden;         
     width: 100%;
 }
 
-/* 標頭下方的橫線 */
 .tablelist th {
     border-bottom: 1px solid #333;
     padding: 10px;
     background-color: #f8f9fa;
 }
 
-/* 內容格的線條（如果你想要格線的話） */
+
 .tablelist td {
     border-bottom: 1px solid #eee;
     padding: 8px;
 }
 
-/* 移除最後一行的底線，避免它跟圓角外框重疊 */
+
 .tablelist tr:last-child td {
     border-bottom: none;
+}
+.btn{
+    display: flex;
+    justify-content: center;
 }
