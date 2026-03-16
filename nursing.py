@@ -886,3 +886,84 @@ async def getreservestaff(request: Request,date: str = None):
     finally:
          db.close()
 
+
+from datetime import datetime
+from decimal import Decimal
+from db_test import SessionLocal, staff, settingtime, Base, engine
+
+def run_init():
+    # 確保資料表已存在
+    Base.metadata.create_all(engine)
+    db = SessionLocal()
+    
+    try:
+        # --- 1. 匯入人員名單 ---
+        staff_list = [
+            ("護理長N17", "HNUR0001", "HNUR0001", "Head_Nurse", None, "N17", "2026-03-13"),
+            ("謝0靜", "NUR0002", "NUR0002", "Staff_Nurse", "N4", "N17", "2011-10-18"),
+            ("林0雯", "NUR0003", "NUR0003", "Staff_Nurse", "N3", "N17", "2017-09-04"),
+            ("李0政", "NUR0004", "NUR0004", "Staff_Nurse", "N2", "N17", "2018-04-09"),
+            ("李0庭", "NUR0005", "NUR0005", "Staff_Nurse", "N2", "N17", "2018-07-02"),
+            ("朱0茜", "NUR0006", "NUR0006", "Staff_Nurse", "N2", "N17", "2019-08-10"),
+            ("賴0珍", "NUR0007", "NUR0007", "Staff_Nurse", "N2", "N17", "2020-09-07"),
+            ("林0均", "NUR0008", "NUR0008", "Staff_Nurse", "N2", "N17", "2020-09-07"),
+            ("楊0閔", "NUR0009", "NUR0009", "Staff_Nurse", "N2", "N17", "2021-10-04"),
+            ("譚0慈", "NUR0010", "NUR0010", "Staff_Nurse", "N2", "N17", "2021-10-04"),
+            ("張0研", "NUR0011", "NUR0011", "Staff_Nurse", "N2", "N17", "2022-02-14"),
+            ("吳0儀", "NUR0012", "NUR0012", "Staff_Nurse", "N2", "N17", "2022-07-04"),
+            ("謝0?", "NUR0013", "NUR0013", "Staff_Nurse", "N2", "N17", "2022-08-08"),
+            ("陳0宸", "NUR0014", "NUR0014", "Staff_Nurse", "N2", "N17", "2022-09-05"),
+            ("江0芸", "NUR0015", "NUR0015", "Staff_Nurse", "N2", "N17", "2022-12-05"),
+            ("張0文", "NUR0016", "NUR0016", "Staff_Nurse", "N0", "N17", "2025-08-04"),
+            ("張0翔", "NUR0017", "NUR0017", "Staff_Nurse", "N0", "N17", "2025-09-01"),
+            ("朱0碩", "NUR0018", "NUR0018", "Staff_Nurse", "N0", "N17", "2026-03-02"),
+            ("王0金", "NUR0019", "NUR0019", "Staff_Nurse", "N3", "N17", "1999-08-02"),
+            ("駱0君", "NUR0020", "NUR0020", "Staff_Nurse", "N2", "N17", "2010-06-21"),
+            ("謝0欣", "NUR0021", "NUR0021", "Staff_Nurse", "N2", "N17", "2013-10-14"),
+            ("廖0婷", "NUR0022", "NUR0022", "Staff_Nurse", "N1", "N17", "2024-04-22"),
+            ("楊0萱", "NUR0023", "NUR0023", "Staff_Nurse", "N1", "N17", "2019-04-08"),
+            ("謝0洵", "NUR0024", "NUR0024", "Staff_Nurse", "N2", "N17", "2021-08-09"),
+        ]
+
+        for name, emp_num, pwd, role, level, ward, join_date_str in staff_list:
+            if not db.query(staff).filter(staff.employee_num == emp_num).first():
+                new_member = staff(
+                    full_name=name,
+                    employee_num=emp_num,
+                    password=pwd,
+                    role=role,
+                    level=level,
+                    ward=ward,
+                    join_date=datetime.strptime(join_date_str, "%Y-%m-%d").date(),
+                    is_temp_password=True
+                )
+                db.add(new_member)
+
+        # --- 2. 匯入排班設定 ---
+        settings_list = [
+            ("none", 4.0, 9.0, 6.0, 2.0),
+            ("N17", 3.0, 9.0, 6.0, 2.0)
+        ]
+
+        for ward, r2w, r1m, mcw, ms1w in settings_list:
+            if not db.query(settingtime).filter(settingtime.ward == ward).first():
+                new_setting = settingtime(
+                    ward=ward,
+                    min_rest_2w=Decimal(str(r2w)),
+                    min_rest_1m=Decimal(str(r1m)),
+                    max_continuous_work=Decimal(str(mcw)),
+                    max_shifts_1w=Decimal(str(ms1w))
+                )
+                db.add(new_setting)
+
+        db.commit()
+        print("🎉 所有測試資料已成功初始化！")
+
+    except Exception as e:
+        db.rollback()
+        print(f"發生錯誤: {e}")
+    finally:
+        db.close()
+
+if __name__ == "__main__":
+    run_init()
