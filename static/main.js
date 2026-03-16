@@ -46,13 +46,8 @@ function setting() {
 }
 
 function staff(role) {
-    if (role == generalstaff){
-    window.location.href ="/staff?role=generalstaff";
-   }else if((role == adminstaff)){
-    
-    window.location.href="/staff?role=adminstaff";
-
-   }
+   if (role == generalstaff){
+    window.location.href ="/staff?role=generalstaff";}
 }
 function set(role) {
     if (role == generalstaff){

@@ -18,12 +18,19 @@ async function checkLoginStatus() {
       document.querySelector("#username").textContent = result.data.full_name;
       
       const userRole = result.data.role;
+      
 
         if (userRole === "Staff_Nurse") {
             const navbarsetting = document.querySelector("#nav-setting");
             const navbarautocalendar = document.querySelector("#nav-staffmanagement");
+            const btnsave = document.querySelector(".btn-group-save");
             navbarsetting.style.display = "none";
             navbarautocalendar.style.display = "none";
+            btnsave.style.display="none";
+            document.querySelector(".selector").style.display = "block";
+            document.querySelector(".btn-group-edit").style.display = "flex";
+            document.querySelector(".selector-explain").style.display = "block";
+            btnsave.style.display="none";
         }
       
     } else {
@@ -71,12 +78,16 @@ async function getStaffData() {
             leaveChoicesInstance.setChoices(dateChoices, 'value', 'label', true);
 
             //第一行
-            tablelist=document.querySelector(".tablelist")
+            const tablelist=document.querySelector(".tablelist")
             tablelist.innerHTML = "";
             thead=document.createElement("thead")
+            const baseDate = dayjs(month, "YYYY-M");//為了星期
             let firstRow=`<tr><th class="staff">員工姓名</th>`;
             for (let i = 1; i < result.data[0].schedule_date+1; i++) {
-                    firstRow += `<th>${i}</th>`
+                
+                const dayOfWeek = baseDate.date(i).format("ddd");//抓星期
+                
+                firstRow += `<th>${i}<br><small>${dayOfWeek}</small></th>`
                 }
             firstRow += `</tr>`;
             thead.innerHTML = firstRow;
@@ -86,7 +97,7 @@ async function getStaffData() {
             const tbody = document.createElement("tbody");
             let allnameRows="";
             result.data.forEach(namelist => {
-                let nameRow=`<tr><td class="staff">${namelist.full_name}</td>`;
+                let nameRow=`<tr><td class="staff">${namelist.full_name}<br>${namelist.level}</td>`;
                 if(namelist.leave_dates === null){
                 for (let b = 1; b < result.data[0].schedule_date+1; b++) {
                     nameRow +=`<td id="${b}"></td>`;
@@ -130,6 +141,8 @@ async function updateleavedates(){
 
 async function finalscheduling(){
     const token = localStorage.getItem("token"); 
+    const hint = document.querySelector(".hint");
+    hint.textContent = "正在生成班表，請稍候...";
     const response = await fetch(`/api/finalscheduling/${month}`, {
         method: "POST",
         headers: {
@@ -141,7 +154,11 @@ async function finalscheduling(){
     const result = await response.json();
         
     if (response.ok && result.ok){
-    window.location.href = `/finalscheduling?date=${month}`;
+        window.location.href = `/finalscheduling?date=${month}`;
+
+    }else{
+        hint.textContent = result.message;
+        hint.style.color = "red";
 
     }
 }

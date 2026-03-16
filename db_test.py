@@ -49,11 +49,8 @@ class settingtime(Base):
 
      id = Column(Integer, primary_key=True, autoincrement=True)
      ward = Column(String(50), nullable=False)
-     min_shift_interval = Column(DECIMAL(4, 1))
      min_rest_2w = Column(DECIMAL(4, 1))
      min_rest_1m = Column(DECIMAL(5, 1))
-     max_hours_1w = Column(DECIMAL(4, 1))
-     max_hours_1d = Column(DECIMAL(4, 1))
      max_continuous_work = Column(DECIMAL(4, 1))
      max_shifts_1w = Column(DECIMAL(4, 1))
 

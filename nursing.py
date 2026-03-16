@@ -301,17 +301,15 @@ async def updatesettingtime(request:Request, body: dict = Body(...)):
         ward=payload["ward"]
 
     try:
-        min_shift_interval= float(body["min_shift_interval"])
+        
         min_rest_2w= float(body["min_rest_2w"])
         min_rest_1m= float(body["min_rest_1m"])
-        max_hours_1w= float(body["max_hours_1w"])
-        max_hours_1d= float(body["max_hours_1d"])
         max_continuous_work= float(body["max_continuous_work"])
         max_shifts_1w= float(body["max_shifts_1w"])
 
         db.query(settingtime).filter(settingtime.ward == ward).delete()
         
-        new_settingtime = settingtime(ward=ward,min_shift_interval=min_shift_interval,min_rest_2w=min_rest_2w,min_rest_1m=min_rest_1m,max_hours_1w=max_hours_1w,max_hours_1d=max_hours_1d,max_continuous_work=max_continuous_work,max_shifts_1w=max_shifts_1w)
+        new_settingtime = settingtime(ward=ward,min_rest_2w=min_rest_2w,min_rest_1m=min_rest_1m,max_continuous_work=max_continuous_work,max_shifts_1w=max_shifts_1w)
         db.add(new_settingtime)
         db.commit()
         return {"ok": True}
@@ -579,6 +577,7 @@ async def getreservestaff(request: Request,date: str = None):
         scheduled_member.staff_id,
         scheduled_member.schedule_date,
         staff.full_name,
+        staff.level,
         scheduled_member.leave_dates).join(staff, scheduled_member.staff_id == staff.id).filter(scheduled_member.schedule_id == date,scheduled_member.ward == ward).all()
         formatted_data = []
         for row in results:
@@ -586,6 +585,7 @@ async def getreservestaff(request: Request,date: str = None):
                 "staff_id": row.staff_id,
                 "schedule_date": row.schedule_date,
                 "full_name": row.full_name,
+                "level": row.level,
                 "leave_dates": row.leave_dates
             })
             
@@ -646,175 +646,190 @@ async def updateReserveBreak(request:Request, body: dict = Body(...)):
     finally:
          db.close()
 
-#自動排班功能之後要將get改成post喔
+#自動排班功能之後要將get改成post
 from ortools.sat.python import cp_model
 
 @app.post("/api/finalscheduling/{date}")
 async def final_scheduling(request: Request, date: str = None):
     db = SessionLocal()
-
-    ward="N17"
+    ward = "N17"
     
-    #主要排班的成員需求
-    members = db.query(scheduled_member, staff.full_name).\
-        join(staff, scheduled_member.staff_id == staff.id).\
-        filter(scheduled_member.ward == ward, 
-               scheduled_member.schedule_id == date).all()
-
-    #時間需求
-    time = db.query(settingtime).filter(settingtime.ward == ward).first()
-    
-    #三班需求
-    requirements = db.query(staff_number_schedule).filter(
-        staff_number_schedule.ward == ward
-    ).all()
-
-    num_nurses = len(members)
-    num_shifts = len(requirements)+1
-    num_days = int(members[0][0].schedule_date)
-    all_nurses = range(num_nurses)
-    all_shifts = range(num_shifts)
-    all_days = range(num_days)
-
-    model = cp_model.CpModel()
-
-    shifts = {}
-    for n in all_nurses:
-        for d in all_days:
-            for s in all_shifts:
-                shifts[(n, d, s)] = model.NewBoolVar(f'n{n}_d{d}_s{s}')
-
-    
-    # (休 + 早 + 中 + 晚) 只能有一個是 1
-    for n in all_nurses:
-        for d in all_days:
-            # 更加語意化，且執行效能通常較優
-            model.add_exactly_one(shifts[(n, d, s)] for s in all_shifts)
+    try:
+        # 人員資料,職級與請假日期
+        members = db.query(scheduled_member, staff.full_name, staff.level, scheduled_member.staff_id, scheduled_member.leave_dates).join(staff, scheduled_member.staff_id == staff.id).filter(scheduled_member.ward == ward, scheduled_member.schedule_id == date).all()
         
-    #每天白班要有6個人
-    for d in all_days:
-        # 白班 (s=1) 要 6 人
-        model.Add(sum(shifts[(n, d, 1)] for n in all_nurses) == 6)
-        
-        # 小夜 (s=2) 要 4 人
-        model.Add(sum(shifts[(n, d, 2)] for n in all_nurses) == 4)
-        
-        # 大夜 (s=3) 要 3 人
-        model.Add(sum(shifts[(n, d, 3)] for n in all_nurses) == 3)
-    
-    # 一個月內必須有的最少休息天數
-    min_off_1m = int(time.min_rest_1m) # 9
-    for n in all_nurses:
-        # 加總所有休假天數 (s=0) 必須 >= 9
-        model.Add(sum(shifts[(n, d, 0)] for d in all_days) >= min_off_1m)
+        # 時間需求
+        time_setting = db.query(settingtime).filter(settingtime.ward == ward).first()
+        #每班人數限制
+        staff_number_day=db.query(staff_number_schedule.shift_staff_number).filter(staff_number_schedule.shift=="day", staff_number_schedule.ward == ward)
+        staff_number_night=db.query(staff_number_schedule.shift_staff_number).filter(staff_number_schedule.shift=="night",staff_number_schedule.ward == ward)
+        staff_number_midnight=db.query(staff_number_schedule.shift_staff_number).filter(staff_number_schedule.shift=="midnight",staff_number_schedule.ward == ward)
+        #包班限制
+        staff_list_day=db.query(staff_number_schedule.staff_id).filter(staff_number_schedule.shift=="day", staff_number_schedule.ward == ward).one()
+        staff_list_night=db.query(staff_number_schedule.staff_id).filter(staff_number_schedule.shift=="night",staff_number_schedule.ward == ward).one()
+        staff_list_midnight=db.query(staff_number_schedule.staff_id).filter(staff_number_schedule.shift=="midnight",staff_number_schedule.ward == ward).one()
 
-    # 連續工作上限，第 7 天強制休息
-    max_consecutive = int(time.max_continuous_work) # 6
-    for n in all_nurses:
-        for d in range(num_days - max_consecutive):
-            # 在任意連續的 7 天內，至少要有一天是休假 (s=0)
-            model.Add(sum(shifts[(n, d + i, 0)] for i in range(max_consecutive + 1)) >= 1)
+
+        # 人數
+        num_nurses = len(members)
+        # 該月總天數
+        num_days = int(members[0][0].schedule_date) 
+        num_shifts=4
         
-    # 勞基法 14 天內應有 4 天休息 (例假+休息日)
-    min_off_2w = int(time.min_rest_2w) # 4
-    for n in all_nurses:
-        for d in range(num_days - 13):
-            # 任意連續 14 天內，休假天數 (s=0) 必須 >= 4
-            model.Add(sum(shifts[(n, d + i, 0)] for i in range(14)) >= min_off_2w)
-    
-    #班次最短間隔時數
-    for n in all_nurses:
-        for d in range(num_days - 1):
-            # 如果第 d 天上小夜 (s=2)，第 d+1 天不能上白班 (s=1)
-            model.Add(shifts[(n, d, 2)] + shifts[(n, d + 1, 1)] <= 1)
-            # 如果第 d 天上大夜 (s=3)，第 d+1 天不能上白班 (s=1)
-            model.Add(shifts[(n, d, 3)] + shifts[(n, d + 1, 1)] <= 1)
-        
-    for n in all_nurses:
-        for d in range(num_days - 6):
-            # 任意 7 天內，上班總數 (s != 0) 不得超過 5 班
-            # 換句話說，休假 (s=0) 必須 >= 2 天
-            model.Add(sum(shifts[(n, d + i, 0)] for i in range(7)) >= 2)
-    
-    for n in all_nurses:
-        for d in range(num_days - 6): # 以每一週為滑動視窗
-            # 建立三個輔助變數，代表這 7 天內有沒有上過 s=1, 2, 3 班
-            used_s1 = model.NewBoolVar(f'used_s1_n{n}_d{d}')
-            used_s2 = model.NewBoolVar(f'used_s2_n{n}_d{d}')
-            used_s3 = model.NewBoolVar(f'used_s3_n{n}_d{d}')
+        all_nurses = range(num_nurses)
+        all_shifts = range(num_shifts) # 0:休, 1:D, 2:E, 3:N
+        all_days = range(num_days)
 
-            for i in range(7):
-                # 邏輯連結：如果第 d+i 天上了 s=1，則 used_s1 必須為 1
-                model.Add(used_s1 >= shifts[(n, d + i, 1)])
-                model.Add(used_s2 >= shifts[(n, d + i, 2)])
-                model.Add(used_s3 >= shifts[(n, d + i, 3)])
-
-            # 核心限制：這三種班別的開關加起來，不能超過你設定的「2」
-            model.Add(used_s1 + used_s2 + used_s3 <= 2)
-
-    solver = cp_model.CpSolver()
-    solver.parameters.max_time_in_seconds = 10.0
-    status = solver.Solve(model)
-    if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
-        final_schedule = []
-        for d in all_days:
-            day_data = {"day": d + 1, "staff": []}
-            for n in all_nurses:
-                nurse_name = members[n][1] # 從你之前的 query 拿名字
+        #n=每個護理師 d=天數 s=班別
+        model = cp_model.CpModel()
+        shifts = {}
+        for n in all_nurses:
+            for d in all_days:
                 for s in all_shifts:
-                    if solver.Value(shifts[(n, d, s)]) == 1:
-                        # 0:休, 1:早, 2:中, 3:晚 (根據你的 requirements 排序)
-                        day_data["staff"].append({
-                            "name": nurse_name,
-                            "shift_type": s
-                        })
-            final_schedule.append(day_data)
-    
-        try:
-            # A. 執行資料轉換：從「天」結構轉成「人」結構
-            organized_storage = {}
-            for day_entry in final_schedule:
-                d_str = str(day_entry["day"])
-                for s_info in day_entry["staff"]:
-                    name = s_info["name"]
-                    if name not in organized_storage:
-                        # 從 members 中找到對應的 staff_id
-                        sid = next(m[0].staff_id for m in members if m[1] == name)
-                        organized_storage[name] = {"id": sid, "data": {}}
-                    organized_storage[name]["data"][d_str] = s_info["shift_type"]
+                    shifts[(n, d, s)] = model.NewBoolVar(f'n{n}_d{d}_s{s}')
 
-            # B. 寫入資料庫 (一人一列)
-            # 建議先刪除該月份舊班表，避免重複存檔
-            db.query(finalscheduletable).filter(
-                finalscheduletable.ward == ward, 
-                finalscheduletable.year_month == date
-            ).delete()
+        # 每人每天只能有一個班次
+        for n in all_nurses:
+            for d in all_days:
+                model.AddExactlyOne(shifts[(n, d, s)] for s in all_shifts)
+
+        staff_number_day= staff_number_day.scalar() # 白班
+        staff_number_night= staff_number_night.scalar() # 小夜
+        staff_number_midnight= staff_number_midnight.scalar() # 大夜
+
+        
+        #每班人數限制
+        for d in all_days:
+            model.Add(sum(shifts[(n, d, 1)] for n in all_nurses) == staff_number_day) # 白班
+            model.Add(sum(shifts[(n, d, 2)] for n in all_nurses) == staff_number_night) # 小夜
+            model.Add(sum(shifts[(n, d, 3)] for n in all_nurses) == staff_number_midnight) # 大夜
+        
+        #請假及包班規畫 人數、班數、天數
+        #空的格子
+        shift_requests = [] 
+        for n in all_nurses:
+            days = [] # 每個人幾天有幾個
+            for d in all_days:
+                day_shifts = [0, 0, 0, 0] # 班數
+                days.append(day_shifts)
+            shift_requests.append(days)
+        
+        #建立名字數字對照表
+        name_to_index = {}
+        for n in all_nurses:
+            nurse_name = members[n][1] 
+            name_to_index[nurse_name] = n
+
+        #包小夜
+        if staff_list_night[0]:
+            staff_list_night=staff_list_night[0].split(',')
+            for name_night in staff_list_night:
+                ind_night=name_to_index.get(name_night)
+                if ind_night is not None:
+                    for d in all_days:
+                        shift_requests[ind_night][d][2] = 1
+
+        #包大夜
+        if staff_list_midnight[0]:
+            staff_list_midnight=staff_list_midnight[0].split(',')
+            for name_midnight in staff_list_midnight:
+                ind_midnight=name_to_index.get(name_midnight)
+                if ind_midnight is not None:
+                    for d in all_days:
+                        shift_requests[ind_midnight][d][3] = 1
+             
+             
+        #抓請假
+        for n in all_nurses:
+            day=members[n].leave_dates
+            days_off=[]
+            if day:
+                leave_day_list=day.split(',')
+                for item in leave_day_list:
+                    day_number = int(item)
+                    index = day_number - 1
+                    days_off.append(index)
+            for item in days_off:
+                 shift_requests[n][item][0]=1
+                    
+
+        #勞務平衡
+        num_shifts= staff_number_day+staff_number_night+staff_number_midnight
+        min_shifts_per_nurse = (num_shifts * num_days) // num_nurses
+        if num_shifts * num_days % num_nurses == 0:
+            max_shifts_per_nurse = min_shifts_per_nurse
+        else:
+            max_shifts_per_nurse = min_shifts_per_nurse + 1
+        for n in all_nurses:
+            shifts_worked = []
+            for d in all_days:
+                for s in [1,2,3]:
+                    shifts_worked.append(shifts[(n, d, s)])
+            model.Add(min_shifts_per_nurse <= sum(shifts_worked))
+            model.Add(sum(shifts_worked) <= max_shifts_per_nurse)
+
+        #settingtime限制
+        for n in all_nurses:
+            # 月休天數限制
+            model.Add(sum(shifts[(n, d, 0)] for d in all_days) >= int(time_setting.min_rest_1m))
+            
+            # 連續工作天數限制
+            for d in range(num_days - int(time_setting.max_continuous_work)):
+                model.Add(sum(shifts[(n, d + i, 0)] for i in range(int(time_setting.max_continuous_work) + 1)) >= 1)
+
+            # 班次間隔限制 (禁止 E/N 接 D)
+            for d in range(num_days - 1):
+                model.Add(shifts[(n, d, 2)] + shifts[(n, d + 1, 1)] <= 1)
+                model.Add(shifts[(n, d, 3)] + shifts[(n, d + 1, 1)] <= 1)
+
+            #兩周內最少休息天數
+            for d in range(num_days - 13):
+                model.Add(sum(shifts[(n, d + i, 0)] for i in range(14)) >= time_setting.min_rest_2w)
+            
+            #先不處理一周內班別限制 處理包班就好
+
+        model.Maximize(
+        sum(
+            shift_requests[n][d][s] * shifts[(n, d, s)]
+            for n in all_nurses
+            for d in all_days
+            for s in all_shifts))
+        
+        solver = cp_model.CpSolver()
+        solver.parameters.max_time_in_seconds = 20.0 # 給予更多運算時間
+        status = solver.Solve(model)
+
+        if status == cp_model.OPTIMAL:
+            # 整理與儲存資料
+            organized_storage = {}
+            for n in all_nurses:
+                nurse_name = members[n][1]
+                staff_id = members[n][3]
+                organized_storage[nurse_name] = {"id": staff_id, "data": {}}
+                for d in all_days:
+                    for s in all_shifts:
+                        if solver.Value(shifts[(n, d, s)]) == 1:
+                            organized_storage[nurse_name]["data"][str(d + 1)] = s
+
+        
+
+            # 寫入資料庫
+            db.query(finalscheduletable).filter(finalscheduletable.ward == ward, finalscheduletable.year_month == date).delete()
 
             for name, info in organized_storage.items():
-                new_record = finalscheduletable(
-                    staff_id=info["id"],
-                    name=name,
-                    year_month=date,
-                    ward=ward,
-                    schedule_data=info["data"] # PostgreSQL JSONB 欄位
-                )
+                new_record = finalscheduletable(staff_id=info["id"],name=name,year_month=date, ward=ward, schedule_data=info["data"])
                 db.add(new_record)
             
-            db.commit() # 正式寫入資料庫
-            return {"ok":True}
+            db.commit()
+            return {"ok": True}
+        else:
+            return {"status": "error", "message": "在放寬限制後仍找不到可行解，請檢查總人力是否充足"}
 
-        except Exception as e:
-            db.rollback() # 出錯時回滾，保護資料
-            return {"status": "error", "message": f"儲存失敗: {str(e)}"}
-        finally:
-            db.close() # 務必關閉資料庫連線
-
-    else:
+    except Exception as e:
+        db.rollback()
+        return {"status": "error", "message": f"系統錯誤: {str(e)}"}
+    finally:
         db.close()
-        return {
-            "status": "error",
-            "message": "在當前限制下找不到可行解",
-        }
     
 @app.get("/api/finalmonth")
 async def finalmonth(request: Request):
@@ -849,12 +864,14 @@ async def getreservestaff(request: Request,date: str = None):
     ward = "N17"
 
     try:
-        results = db.query(finalscheduletable.name,finalscheduletable.schedule_data).filter(finalscheduletable.year_month == date,finalscheduletable.ward == ward).all()
+        results = db.query(finalscheduletable.staff_id, staff.full_name,staff.level, finalscheduletable.schedule_data).join(staff, finalscheduletable.staff_id == staff.id).filter(finalscheduletable.year_month == date,finalscheduletable.ward == ward).all()
         formatted_data = []
         for row in results:
             formatted_data.append({
-                "schedule_date": row.name,
-                "full_name": row.schedule_data,
+                "id":row.staff_id,
+                "full_name": row.full_name,
+                "level": row.level,
+                "schedule_date": row.schedule_data
             })
             
         return {"data": formatted_data}

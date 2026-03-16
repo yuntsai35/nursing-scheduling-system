@@ -22,7 +22,7 @@
           <a class="nav-link" href="/main">首頁</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" id="nav-staffmanagement" onclick="staff(generalstaff)" >人員管理</a>
+          <a class="nav-link" id="nav-staffmanagement" style="cursor: pointer;" href="/staff?role=generalstaff" >人員管理</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" id="nav-setting" href="/setting">自動排班</a>
@@ -43,24 +43,29 @@
       <div class="main-container">
         <div>
             <div class="title" style="display: flex;"><div id="reservemonth" style="margin-right: 10px;"></div>護理人力預假申請</div>
-            <div class="selector">
+            <div class="selector-explain" style="margin-top: 10px;display: none;">請一次填完需要的請假天數，如需修改，重新填寫就會覆蓋。</div>
+            <div class="selector" style="display: none;">
               <select class="form-control" name="choices-multiple-remove-button" id="choices-multiple-remove-button" placeholder="This is a placeholder" multiple>
 
               </select>
-              <button class="btn-group-edit" onclick="updateleavedates()">安排預假日期</button>
+              <button class="btn-group-edit" style="display: none;" onclick="updateleavedates()">安排預假日期</button>
             </div>
-
+            <div class="table-container">
             <table class="tablelist">
               
             </table>
+            </div>
+            
         </div>
         <div class="btn">
-        <button class="btn-group-save" onclick="finalscheduling()">產生班表</button>
+          <div class="hint"></div>
+          <button class="btn-group-save" onclick="finalscheduling()">產生班表</button>
         </div>
     </div> 
     </main>
 <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.7.3/dist/alpine.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
 <script src="static/reservebreak.js"></script>
 </body>
 </html>

@@ -40,7 +40,10 @@ main{
     max-width: 1200px;
     width: 100%; 
 }
-
+.label{
+    margin-right: 10px;
+    font-weight: bold;
+}
 
 
 .title{
@@ -68,15 +71,7 @@ main{
     display: flex;
     justify-content: flex-end;
 }
-.btn-group-edit{
-    margin-right: 10px;
-    border-radius: 5px;
-    padding: 5px 10px;
-    background-color: #6c757d;
-    border-color: #6c757d;
-    color:#fff;
 
-}
 .btn-group-save{
     margin-right: 10px;
     border-radius: 5px;
@@ -84,16 +79,70 @@ main{
     background-color:#198754;
     border-color: #198754;
     color:#fff;
+    width: 80px;
+    
 }
 .btn{
     display:flex;
+    flex-direction: column;
+    margin-bottom: 20px;
 }
 .container{
     display:flex;    
 }
 
+
+
+
+/* 1. 確保表格的外層容器可以捲動 */
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+    max-height: 70vh; /* 可選：固定高度讓表頭也能固定 */
+    
+}
+
+.tablelist {
+    border-collapse: separate; /* 重要：sticky 在 collapse 模式下有時會有 bug */
+    border: 2px solid #333;   
+    border-spacing: 0;
+    width: max-content;
+}
+
+/* 2. 固定左側姓名欄 */
+.tablelist .staff {
+    position: -webkit-sticky; /* 支援 Safari */
+    position: sticky;
+    left: 0;             /* 固定在左側 0 的位置 */
+    background-color: #FFFFFF; /* 必須設定背景色，否則捲動時會變透明看到後面的字 */
+    z-index: 2;          /* 層級要比一般 td 高 */
+    border-right: 2px solid #333; /* 增加一條明顯的分隔線 */
+    min-width: 100px;    /* 設定適合的寬度 */
+}
+
+/* 3. 如果你也想固定第一排表頭（日期） */
+.tablelist thead th {
+    position: sticky;
+    top: 0;
+    background-color: #f8f9fa;
+    z-index: 3; /* 表頭交界處層級最高 */
+    font-size: 14px;
+}
+
+/* 確保左上角那一格（姓名標題）同時固定上方與左方 */
+.tablelist thead th.staff {
+    left: 0;
+    top: 0;
+    z-index: 4;
+}
+
+.tablelist th, .tablelist td {
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
 .tablelist .staff{
-    width:70px;
+    min-width:60px;
     border-right:1px solid #eee;
 }
 .tablelist th{
@@ -101,15 +150,6 @@ main{
     height:30px;
 }
 
-.tablelist {
-    margin-top: 30px;        
-    border: 2px solid #333;   
-    border-radius: 12px;     
-    border-collapse: separate; 
-    border-spacing: 0;         
-    overflow: hidden;         
-    width: 100%;
-}
 
 .tablelist th {
     border-bottom: 1px solid #333;

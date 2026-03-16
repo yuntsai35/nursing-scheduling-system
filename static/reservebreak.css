@@ -93,12 +93,28 @@ main{
 }
 
 .tablelist .staff{
-    width:70px;
+    min-width:55px;
     border-right:1px solid #eee;
 }
-.tablelist th{
-    width: 30px;
-    height:30px;
+
+.table-container{
+    width: 100%;
+    overflow-x: auto; 
+    border-radius: 12px;
+
+}
+.tablelist .staff {
+    position: sticky;
+    left: 0;           
+    background-color: #f8f9fa; 
+    z-index: 2;     
+    font-size: 14px;     
+  
+}
+
+
+.tablelist thead th.staff {
+    z-index: 3; 
 }
 
 .tablelist {
@@ -109,18 +125,27 @@ main{
     border-spacing: 0;         
     overflow: hidden;         
     width: 100%;
+    width: max-content;
+    font-size: 12px;
 }
 
 .tablelist th {
     border-bottom: 1px solid #333;
     padding: 10px;
     background-color: #f8f9fa;
+    font-size: 14px;
+    width: 30px;
+    height:30px;
+   
 }
 
 
 .tablelist td {
     border-bottom: 1px solid #eee;
     padding: 8px;
+    font-size: 15px;
+    text-align: center;
+    vertical-align: middle;
 }
 
 

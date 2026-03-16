@@ -10,7 +10,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Chiron+GoRound+TC:wght@200..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/finalscheduling.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
 </head>
 <body>
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
@@ -22,7 +21,7 @@
           <a class="nav-link" href="/main">首頁</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" id="nav-staffmanagement" onclick="staff(generalstaff)" >人員管理</a>
+          <a class="nav-link" id="nav-staffmanagement" style="cursor: pointer;" href="/staff?role=generalstaff" >人員管理</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" id="nav-setting" href="/setting">自動排班</a>
@@ -40,27 +39,25 @@
 </nav>
 
     <main>
-      <div class="main-container">
+      <div class="main-container" style="margin-bottom: 20px;">
     <div>
-        <div class="title" style="display: flex;"><div id="reservemonth" style="margin-right: 10px;"></div>護理人力預假申請</div>
-        <div class="selector">
-          <select class="form-control" name="choices-multiple-remove-button" id="choices-multiple-remove-button" placeholder="This is a placeholder" multiple>
-
-          </select>
-          <button class="btn-group-edit" onclick="updateleavedates()">安排預假日期</button>
+        <div class="title" style="display: flex;margin-bottom: 10px;"><div id="reservemonth" style="margin-right: 10px;"></div>護理人力班表</div>
+        <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
+          <div class="label" style="background-color: #fff9db;">D = 白班</div> 
+          <div class="label" style="background-color: #fff4e6;">E = 小夜</div>
+          <div class="label" style="background-color: #edf2ff;">N = 大夜</div>
         </div>
-
+        <div class="table-responsive">
         <table class="tablelist">
           
         </table>
-    </div>
-    <div class="btn">
-    <button class="btn-group-save">產生班表</button>
+        </div>
     </div>
   </div>  
   </main>
 <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.7.3/dist/alpine.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
-<script src="static/reservebreak.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+<script src="/static/finalscheduling.js"></script>
 </body>
 </html>
