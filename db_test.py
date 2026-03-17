@@ -7,9 +7,39 @@ from sqlalchemy import create_engine, Column, Integer, String, Enum, Date, Boole
 from sqlalchemy.orm import declarative_base, sessionmaker, relationship
 from sqlalchemy.dialects.postgresql import JSONB
 
-SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY")
+SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URL")
 engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=True,pool_recycle=3600,pool_pre_ping=True)
 Base = declarative_base()
+
+class member(Base):
+     __tablename__ = "member"
+
+     id = Column(Integer, primary_key=True, autoincrement=True)
+     full_name = Column(String(50), nullable=False)
+     employee_num = Column(String(20), nullable=False, unique=True)
+     password = Column(String(255), nullable=False)
+     members= relationship("member_ward", back_populates="staff_info")
+ 
+
+class ward(Base):
+     __tablename__ = "ward"
+
+     id = Column(Integer, primary_key=True, autoincrement=True)
+     ward = Column(String(50), nullable=False)
+     wards= relationship("member_ward", back_populates="ward_info")
+
+
+
+class member_ward(Base):
+     __tablename__ = "member_ward"
+
+     id = Column(Integer, primary_key=True, autoincrement=True)
+     staff_id = Column(Integer,ForeignKey("member.id"), nullable=True)
+     ward_id = Column(Integer,ForeignKey("ward.id"), nullable=True)
+     role = Column(Enum('Head_Nurse', 'Staff_Nurse', name='staff_role_enum'), nullable=False)
+     level = Column(Enum('N0', 'N1', 'N2', 'N3', 'N4', name='staff_level_enum'), nullable=True)
+     staff_info = relationship("member", back_populates="members")
+     ward_info = relationship("ward", back_populates="wards")
 
 
 class staff(Base):
