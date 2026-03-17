@@ -29,7 +29,7 @@ main{
     filter: brightness(0.8);      
 }
 
-.login-box {
+.login-box,.signup-box {
     width: 350px;
     padding: 40px;
     border-radius: 15px;
@@ -45,7 +45,7 @@ main{
 }
 
 /* 讓輸入框也美化一下 */
-.account input, .password input {
+.account input, .password input, .name input {
     width: 330px;
     padding: 10px;
     margin-top: 5px;
@@ -75,4 +75,8 @@ hr {
     border: 0;
     border-top: 1px solid #e5e7eb; 
     margin: 10px 0;
+}
+
+.is-hidden {
+    display: none !important;
 }

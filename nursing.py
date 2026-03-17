@@ -69,7 +69,6 @@ def run_init():
 
         # --- 2. 匯入排班設定 ---
         settings_list = [
-            ("none", 4.0, 9.0, 6.0, 2.0),
             ("N17", 3.0, 9.0, 6.0, 2.0)
         ]
 
@@ -104,6 +103,9 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 @app.get("/", include_in_schema=False)
 async def index(request: Request):
 	return FileResponse("./static/login.html", media_type="text/html")
+@app.get("/index", include_in_schema=False)
+async def index(request: Request):
+	return FileResponse("./static/index.html", media_type="text/html")
 @app.get("/main", include_in_schema=False)
 async def index(request: Request):
 	return FileResponse("./static/main.html", media_type="text/html")

@@ -47,3 +47,19 @@ async function checkLoginStatus() {
         window.location.href = "/";
     }
 }
+
+function showsignup() {
+    const login = document.querySelector(".login-box");
+    const signup = document.querySelector(".signup-box");
+    
+    login.classList.add("is-hidden");
+    signup.classList.remove("is-hidden");
+}
+
+function showlogin() {
+    const login = document.querySelector(".login-box");
+    const signup = document.querySelector(".signup-box");
+    
+    signup.classList.add("is-hidden");
+    login.classList.remove("is-hidden");
+}

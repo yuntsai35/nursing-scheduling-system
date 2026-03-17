@@ -13,7 +13,7 @@
 <body>
     <div class="bg-image"></div>
     <main>
-        <div class="login-box">
+        <div class="login-box" >
             <div style="display:flex; align-items: center;font-size: 20px; font-weight: bold;"><span class="material-symbols-outlined" style="margin-right: 10px;font-size: 30px;color: #005fb8;">blood_pressure</span> Medi-Planner 護理排班系統</div>
             <div style="display:flex; align-items: center;font-size: 20px; font-weight: bold;">Sign In</div>
             <div class="account">
@@ -34,6 +34,26 @@
             <div>護理師= 帳號=NUR0004 密碼=NUR0004</div>
             <hr>
             <div style="display:flex; align-items: center;justify-content: center; font-weight: bold;">還沒有帳戶 ?<div style="margin-left:10px;color: #005FB8; cursor: pointer;" class="signupbtn" onclick="showsignup()">點此註冊</div></div>
+        </div>
+        <div class="signup-box is-hidden">
+            <div style="display:flex; align-items: center;font-size: 20px; font-weight: bold;"><span class="material-symbols-outlined" style="margin-right: 10px;font-size: 30px;color: #005fb8;">blood_pressure</span> Medi-Planner 護理排班系統</div>
+            <div style="display:flex; align-items: center;font-size: 20px; font-weight: bold;">Sign Up</div>
+            <div class="name">
+            <div style="font-weight: bold;">姓名</div>
+            <input placeholder="請輸入姓名">
+            </div>
+            <div class="account">
+            <div style="font-weight: bold;">帳號</div>
+            <input placeholder="請輸入員工編號">
+            </div>
+            <div class="password">
+            <div style="font-weight: bold;">密碼</div>
+            <input placeholder="請輸入密碼">
+            </div>
+            <div class="hint"></div>
+            <button class="login-btn" onclick="login()">註冊</button>
+            <hr>
+            <div style="display:flex; align-items: center;justify-content: center; font-weight: bold;">已經有帳號 ?<div style="margin-left:10px;color: #005FB8; cursor: pointer;" class="signupbtn" onclick="showlogin()">點此登入</div></div>
         </div>
     </main>
 </body>

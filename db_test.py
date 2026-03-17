@@ -20,10 +20,8 @@ class staff(Base):
      employee_num = Column(String(20), nullable=False, unique=True)
      password = Column(String(255), nullable=False)
          
-        # 修改這裡：加入 name='staff_role_enum'
-     role = Column(Enum('IT_Admin', 'Head_Nurse', 'Staff_Nurse', name='staff_role_enum'), nullable=False)
         
-        # 修改這裡：加入 name='staff_level_enum'
+     role = Column(Enum('IT_Admin', 'Head_Nurse', 'Staff_Nurse', name='staff_role_enum'), nullable=False)
      level = Column(Enum('N0', 'N1', 'N2', 'N3', 'N4', name='staff_level_enum'), nullable=True)
         
      ward = Column(String(20), nullable=True)
@@ -68,11 +66,11 @@ class finalscheduletable(Base):
     __tablename__ = "final_schedule"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    staff_id = Column(Integer, nullable=False)    # 護理師 ID
-    name = Column(String(50), nullable=False)     # 姓名
-    year_month = Column(String(20), nullable=False, index=True) # 2026-03
-    ward = Column(String(20), nullable=False)      # N17
-    schedule_data = Column(JSONB, nullable=False) # 重點：使用 JSONB 存儲整個月的班次 {"1": 0, "2": 1, ...}
+    staff_id = Column(Integer, nullable=False)   
+    name = Column(String(50), nullable=False)    
+    year_month = Column(String(20), nullable=False, index=True) 
+    ward = Column(String(20), nullable=False)     
+    schedule_data = Column(JSONB, nullable=False) 
      
 # if not exists,create
 Base.metadata.create_all(engine)
