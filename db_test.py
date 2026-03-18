@@ -25,7 +25,7 @@ class ward(Base):
      __tablename__ = "ward"
 
      id = Column(Integer, primary_key=True, autoincrement=True)
-     ward = Column(String(50), nullable=False)
+     ward_name = Column(String(50), nullable=False)
      wards= relationship("member_ward", back_populates="ward_info")
 
 
@@ -105,3 +105,32 @@ class finalscheduletable(Base):
 # if not exists,create
 Base.metadata.create_all(engine)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+
+
+
+staff_list = [
+            ("謝0靜", "NUR0002", "NUR0002"),
+            ("林0雯", "NUR0003", "NUR0003"),
+            ("李0政", "NUR0004", "NUR0004"),
+            ("李0庭", "NUR0005", "NUR0005"),
+            ("朱0茜", "NUR0006", "NUR0006"),
+            ("賴0珍", "NUR0007", "NUR0007"),
+            ("林0均", "NUR0008", "NUR0008"),
+            ("楊0閔", "NUR0009", "NUR0009"),
+            ("譚0慈", "NUR0010", "NUR0010"),
+            ("張0研", "NUR0011", "NUR0011"),
+            ("吳0儀", "NUR0012", "NUR0012"),
+            ("謝0?", "NUR0013", "NUR0013"),
+            ("陳0宸", "NUR0014", "NUR0014"),
+            ("江0芸", "NUR0015", "NUR0015"),
+            ("張0文", "NUR0016", "NUR0016"),
+            ("張0翔", "NUR0017", "NUR0017"),
+            ("朱0碩", "NUR0018", "NUR0018"),
+            ("王0金", "NUR0019", "NUR0019"),
+            ("駱0君", "NUR0020", "NUR0020"),
+            ("謝0欣", "NUR0021", "NUR0021"),
+            ("廖0婷", "NUR0022", "NUR0022"),
+            ("楊0萱", "NUR0023", "NUR0023"),
+            ("謝0洵", "NUR0024", "NUR0024"),
+        ]

@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 #sqlalchemy
-from db_test import engine, Base, staff, scheduled_member, settingtime, staff_number_schedule,finalscheduletable, SessionLocal
+from db_test import engine, Base, staff, scheduled_member, settingtime, staff_number_schedule,finalscheduletable,member,ward,member_ward, SessionLocal
 from sqlalchemy import desc,asc
 
 
@@ -20,12 +20,10 @@ from decimal import Decimal
 from db_test import SessionLocal, staff, settingtime, Base, engine
 
 def run_init():
-    # 確保資料表已存在
     Base.metadata.create_all(engine)
     db = SessionLocal()
     
     try:
-        # --- 1. 匯入人員名單 ---
         staff_list = [
             ("護理長N17", "HNUR0001", "HNUR0001", "Head_Nurse", None, "N17", "2026-03-13"),
             ("謝0靜", "NUR0002", "NUR0002", "Staff_Nurse", "N4", "N17", "2011-10-18"),
@@ -67,7 +65,6 @@ def run_init():
                 )
                 db.add(new_member)
 
-        # --- 2. 匯入排班設定 ---
         settings_list = [
             ("N17", 3.0, 9.0, 6.0, 2.0)
         ]
@@ -137,6 +134,48 @@ async def index(request: Request):
 
 
 #會員
+@app.post("/api/user/auth")
+async def signup(request: Request, body: dict = Body(...)):
+    db=SessionLocal()
+
+    name=body["name"]
+    employee_num=body["employee_num"].lower()
+    password=body["password"]
+ 
+    if not all([name,employee_num,password]):
+            return JSONResponse(
+                status_code=400,
+                content={"error": True, "message": "建立失敗，欄位不可為空"}
+            )
+    
+    result=db.query(member).filter(member.employee_num == employee_num).first()
+
+    try:
+        if result==None:
+            stafflist = member(employee_num=employee_num, full_name=name, password=password)
+            db.add(stafflist)
+            db.commit()
+            return{"ok":True}
+        else:
+            return JSONResponse(
+				status_code=400,
+				content={
+					"error": True,
+					"message": "註冊失敗，重複的員工編號"
+				}
+			)
+    except Exception as e:
+            return JSONResponse(
+				status_code=500,
+				content={
+					"error": True,
+					"message": "伺服器內部錯誤"
+				}
+			)
+    finally:
+         db.close()
+
+
 @app.get("/api/user/auth")
 async def checkLoginStatus(request:Request):
     bearerToken = request.headers.get("Authorization")
@@ -150,9 +189,7 @@ async def checkLoginStatus(request:Request):
                         "id": payload["id"],
                         "full_name": payload["full_name"],
                         "employee_num": payload["employee_num"],
-                        "password": payload["password"],
-                        "role":payload["role"],
-                        "ward":payload["ward"]
+                        "password": payload["password"]
                     }
                 }
         except(jwt.ExpiredSignatureError, jwt.InvalidTokenError):
@@ -168,11 +205,11 @@ async def login(request:Request,body: dict = Body(...)):
     employee_num=body["employee_num"]
     password=body["password"]
     
-    result=db.query(staff).filter(staff.employee_num == employee_num).filter(staff.password==password).first()
+    result=db.query(member).filter(member.employee_num == employee_num).filter(member.password==password).first()
 
     try:
         if result:
-            payload={"id":result.id,"full_name":result.full_name,"employee_num":result.employee_num,"password":result.password,"role": result.role,"ward":result.ward, "exp": datetime.now(tz=timezone.utc) + timedelta(days=7)}
+            payload={"id":result.id,"full_name":result.full_name,"employee_num":result.employee_num,"password":result.password, "exp": datetime.now(tz=timezone.utc) + timedelta(days=7)}
             token = jwt.encode(payload, os.getenv("SECRET_PASSWORD"), algorithm='HS256')
             return {"token": token}
         
@@ -196,6 +233,125 @@ async def login(request:Request,body: dict = Body(...)):
                 "error": True,
                 "message": f"伺服器內部錯誤: {str(e)}"
             }
+        )
+    finally:
+         db.close()
+
+#新增病房群組
+@app.post("/api/ward")
+async def insertward(request: Request, body: dict = Body(...)):
+    db=SessionLocal()
+    bearerToken = request.headers.get("Authorization")
+    if not bearerToken:
+        return JSONResponse(
+				status_code=403,
+				content={
+					"error": True,
+					"message": "未登入系統，拒絕存取"})
+
+    if bearerToken:
+        token = bearerToken.split(" ")
+
+        payload = jwt.decode(token[1], os.getenv("SECRET_PASSWORD"), algorithms=["HS256"])
+        id = payload["id"]
+    
+    ward_name=body["ward_name"]
+
+    try:
+        new_ward = ward(ward_name=ward_name)
+        db.add(new_ward)
+        db.flush()
+        combine=member_ward(staff_id=id,ward_id=new_ward.id,role='Head_Nurse')
+        db.add(combine)
+        db.commit()
+        return{"ok":True}
+    
+    except jwt.PyJWTError:
+        return JSONResponse(
+            status_code=403,
+            content={"error": True, "message": "未登入系統，拒絕存取"}
+        )
+    
+    except Exception as e:
+            print(f"CRITICAL DATABASE ERROR: {str(e)}")
+            return JSONResponse(
+				status_code=500,
+				content={
+					"error": True,
+					"message": "伺服器內部錯誤"
+				}
+			)
+    finally:
+         db.close()
+
+@app.get("/api/member_ward")
+async def get_staff_list(request: Request):
+    db=SessionLocal()
+    bearerToken = request.headers.get("Authorization")
+    if not bearerToken:
+        return JSONResponse(
+				status_code=403,
+				content={
+					"error": True,
+					"message": "未登入系統，拒絕存取"})
+
+    if bearerToken:
+        token = bearerToken.split(" ")
+        payload = jwt.decode(token[1], os.getenv("SECRET_PASSWORD"), algorithms=["HS256"])
+        id = payload["id"]
+
+    try:
+        result=db.query(member_ward.role,member_ward.ward_id,ward.ward_name).join(ward, member_ward.ward_id == ward.id).filter(member_ward.staff_id == id).all()
+        data_list = []
+        for row in result:
+            data_list.append({
+                "role": row.role,
+                "ward_name": row.ward_name
+            })
+
+        return {"data":data_list}
+    except HTTPException:
+            raise HTTPException(
+				status_code=500,
+				detail={
+					"error": True,
+					"message": "請依照情境提供對應的錯誤訊息"
+				}
+			)
+    finally:
+         db.close()
+
+@app.delete("/api/member_ward")
+async def deletemember_ward(request:Request, body: dict = Body(...)):
+    db=SessionLocal()
+    bearerToken = request.headers.get("Authorization")
+    if not bearerToken:
+        return JSONResponse(
+				status_code=403,
+				content={
+					"error": True,
+					"message": "未登入系統，拒絕存取"})
+
+    if bearerToken:
+        token = bearerToken.split(" ")
+        payload = jwt.decode(token[1], os.getenv("SECRET_PASSWORD"), algorithms=["HS256"])
+        id = payload["id"]
+    
+    ward_id=body["ward_id"]
+    results=db.query(member_ward.role).filter(member_ward.ward_id == ward_id,member_ward.staff_id==id, member_ward.role == 'Head_Nurse')
+    if not results:
+            return JSONResponse(status_code=403, content={"error": True, "message": "只有該病房的護理長可以刪除整個群組"})
+
+    try:
+        db.query(member_ward).filter(member_ward.ward_id == ward_id).delete()
+        db.query(ward).filter(ward.id == ward_id).delete()
+        db.commit()
+        return {"ok":True}
+        
+    except jwt.PyJWTError: 
+        return JSONResponse(
+            status_code=403,
+            content={"error": True, "message": "未登入系統，拒絕存取"}
         )
     finally:
          db.close()
@@ -947,7 +1103,7 @@ async def finalmonth(request: Request):
 
 
 #抓date資料
-@app.get("/api/finalstaff/{date}")
+@app.get("/api/ward/{ward_id}/finalstaff/{date}")
 async def getreservestaff(request: Request,date: str = None):
     db=SessionLocal()
     ward = "N17"

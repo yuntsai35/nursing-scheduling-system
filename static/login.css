@@ -33,18 +33,14 @@ main{
     width: 350px;
     padding: 40px;
     border-radius: 15px;
-    background: rgba(255, 255, 255); /* 半透明白色 */
-    border: 1px solid rgba(255, 255, 255, 0.4); /* 淺色邊框 */
-    
-    /* 3. 視覺效果 */
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); /* 外陰影讓框浮起來 */
-    backdrop-filter: blur(10px); /* 背景模糊 (毛玻璃關鍵) */
+    background: rgba(255, 255, 255);
+    border: 1px solid rgba(255, 255, 255, 0.4); 
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); 
     display: flex;
     flex-direction: column;
     gap: 15px;
 }
 
-/* 讓輸入框也美化一下 */
 .account input, .password input, .name input {
     width: 330px;
     padding: 10px;
@@ -54,7 +50,16 @@ main{
     background: rgba(255, 255, 255, 0.9);
 }
 
-/* 登入按鈕美化 */
+.signup-account input, .signup-password input, .signup-name input {
+    width: 330px;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+
 .login-btn {
     background-color: #005FB8; 
     color: white;
