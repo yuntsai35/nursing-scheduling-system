@@ -17,24 +17,26 @@ async function checkLoginStatus() {
 
     if (response.ok && result.data !== null) {
       document.querySelector("#username").textContent = result.data.full_name;
+      
+      const userRole = result.data.role;
 
-      const role=result.data.role;
-      window.currentUserRole = role;
-      return role;
+        if (userRole === "Staff_Nurse") {
+            const navbarsetting = document.querySelector("#nav-setting");
+            const navbarautocalendar = document.querySelector("#nav-staffmanagement");
+            navbarsetting.style.display = "none";
+            navbarautocalendar.style.display = "none";
+        }
       
     } else {
       window.location.href = "/";
-      return null;
     }
 }
+window.addEventListener("load", checkLoginStatus);
 
 async function getStaffData() {
-    const params = window.location.search;
-    params_list = params.split('=');
-    role=params_list[1]
-
+    const ward_id = sessionStorage.getItem("current_ward_id");
     const token = localStorage.getItem("token");
-    const response = await fetch(`/api/staff/${role}`, {
+    const response = await fetch(`/api/ward/${ward_id}/staff`, {
         method: "GET",
         headers: {
             "Authorization": `Bearer ${token}`
@@ -48,17 +50,14 @@ async function getStaffData() {
         
         const staffList = result.data; 
         tbody.innerHTML = ""; 
-
-        if(window.currentUserRole ==="Head_Nurse"){
-            staffList.forEach(staff => {
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
+        staffList.forEach(staff => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
                 <td>${staff.employee_num}</td> 
                 <td>${staff.full_name}</td>
                 <td>${staff.role}</td>
                 <td>${staff.level}</td> 
                 <td>${staff.ward}</td>
-                <td>${staff.join_date}</td>
 
                 <td class="button">
                     <button class="btn btn-sm btn-outline-primary" id="editStaff-btn" onclick='openmodal("edit",${JSON.stringify(staff)})'>編輯</button>
@@ -66,21 +65,12 @@ async function getStaffData() {
                 </td>
             `;
             tbody.appendChild(tr);
-        })
-
-        };
+        });
     } else {
         console.error("無法取得員工資料");
     }
 }
-
-async function step(){
-    const role= await checkLoginStatus();
-    if (role){
-        getStaffData();
-    }
-}
-window.addEventListener("load", step);
+getStaffData()
 
 // 選單連動
 const roleobject={
@@ -134,7 +124,7 @@ async function insertstaffinfo() {
 async function deletestaffinfo(id) {
     const token = localStorage.getItem("token");
 
-    let response = await fetch("/api/staff", {
+    let response = await fetch(`/api/ward/${ward_id}/staff`, {
         method: "DELETE",
         headers: {
             "Content-Type": "application/json",
@@ -187,77 +177,4 @@ async function editstaffinfo() {
 function closeAddPage() {
     const mainInput = document.querySelector(".main-input");
     mainInput.style.display = 'none';   
-}
-
-function openmodal(mode, staff = null) {
-    const add = document.querySelector("#addStaff-btn");
-    const edit = document.querySelector("#edit");
-    let maininput = document.querySelector(".main-input");
-    let submitbtn = document.querySelector("#insert-btn");
-    let title = document.querySelector(".main-input-title");
-    let idField=document.querySelector(".main-input .addStaff-ID");
-    const roleSelect = document.querySelector(".main-input #addStaff-role");
-    
-    const params = window.location.search;
-    params_list = params.split('=');
-    role=params_list[1]
-
-
-    if(role=='adminstaff'){
-            const staffnurseOption = roleSelect.querySelector('option[value="Staff_Nurse"]');
-            staffnurseOption.style.display = 'none';
-
-        }else if(role=='generalstaff'){
-            const itadminOption = roleSelect.querySelector('option[value="IT_Admin"]');
-            const headnurseOption = roleSelect.querySelector('option[value="Head_Nurse"]');   
-            itadminOption.style.display = 'none';
-            headnurseOption.style.display = 'none';
-        }
-
-    if(mode == 'edit' && staff){
-
-        maininput.style.display = 'flex';
-        title.innerText = "編輯員工檔案";
-        submitbtn.innerText = "儲存修改";
-        submitbtn.onclick = editstaffinfo;
-
-        document.querySelector(".main-input .addStaff-ID").value = staff.employee_num; 
-
-        idField.readOnly = true; 
-        idField.style.backgroundColor = "#f0f0f0";
-        
-        document.querySelector(".main-input .addStaff-name").value = staff.full_name; 
-        
-        const roleSelect = document.querySelector(".main-input #addStaff-role");
-        roleSelect.value = staff.role;
-        
-        renew(roleSelect.value); 
-        if(staff.level == null){
-            document.querySelector(".main-input select[name='member']").value = "無職級";
-        }else{
-            document.querySelector(".main-input select[name='member']").value = staff.level;
-        }
-
-
-        document.querySelector(".main-input .addStaff-ward").value = staff.ward;
-        document.querySelector(".main-input .addStaff-joindate").value = staff.join_date;
-
-    }else if(mode == 'add' && staff==null){
-
-        maininput.style.display = 'flex';
-        submitbtn.onclick = insertstaffinfo;
-        title.innerText = "員工管理新增表單"; 
-        submitbtn.innerText = "新增員工檔案";
-
-        idField.value = "";
-        idField.readOnly = false;
-        idField.style.backgroundColor = "white";
-
-        document.querySelector(".main-input .addStaff-name").value = "";
-        document.querySelector(".main-input #addStaff-role").value = "";
-        document.querySelector(".main-input select[name='member']").innerHTML = '<option value="">請先選取職級</option>';
-        document.querySelector(".main-input .addStaff-ward").value = "";
-        document.querySelector(".main-input .addStaff-joindate").value = "";
-        
-    }
 }

@@ -104,7 +104,9 @@ async function getmember_ward() {
             wardCard.onclick = function() {
                 sessionStorage.setItem("current_role", item.role);
                 sessionStorage.setItem("current_ward_id", item.ward_id);
-                window.location.href = "/main"; 
+                sessionStorage.setItem("current_ward_name", item.ward_name);
+                const wardIdentifier = item.ward_id;
+                window.location.href = `/main/${wardIdentifier}`;
             };
             wardCard.innerHTML=`
             <div style="display:flex; ">

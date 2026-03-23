@@ -34,9 +34,9 @@ window.addEventListener("load", checkLoginStatus);
 
 
 async function getfinal() {
-
+    const ward_id = sessionStorage.getItem("current_ward_id");
     const token = localStorage.getItem("token");
-    const response = await fetch(`/api/finalmonth`, {
+    const response = await fetch(`/api/ward/${ward_id}/finalmonth`, {
         method: "GET",
         headers: {
             "Authorization": `Bearer ${token}`
@@ -63,6 +63,6 @@ async function getfinal() {
 getfinal();
 
 function final(date) {
-    window.location.href = `/finalscheduling?date=${date}`;
+    const ward_id = sessionStorage.getItem("current_ward_id");
+    window.location.href = `/finalscheduling/${ward_id}?date=${date}`;
 }
-

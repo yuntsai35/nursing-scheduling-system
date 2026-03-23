@@ -34,9 +34,9 @@ window.addEventListener("load", checkLoginStatus);
 
 
 async function getReserveMonth() {
-
+    const ward_id = sessionStorage.getItem("current_ward_id");
     const token = localStorage.getItem("token");
-    const response = await fetch(`/api/date`, {
+    const response = await fetch(`/api/ward/${ward_id}/date`, {
         method: "GET",
         headers: {
             "Authorization": `Bearer ${token}`
@@ -63,6 +63,6 @@ async function getReserveMonth() {
 getReserveMonth();
 
 function reservebreak(date) {
-    window.location.href = `/reservebreak?date=${date}`;
+    const ward_id = sessionStorage.getItem("current_ward_id");
+    window.location.href = `/reservebreak/${ward_id}?date=${date}`;
 }
-

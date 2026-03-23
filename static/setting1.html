@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Chiron+GoRound+TC:wght@200..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
     <link rel="stylesheet" href="/static/setting1.css">
 </head>
 <body>
@@ -18,19 +19,19 @@
     <div class="collapse navbar-collapse" id="navbarText">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a class="nav-link" href="/main">首頁</a>
+          <a class="nav-link" onclick="main()">首頁</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" id="nav-staffmanagement" style="cursor: pointer;" href="/staff?role=generalstaff" >人員管理</a>
+          <a class="nav-link" id="nav-staffmanagement" style="cursor: pointer;" onclick="staff()" >人員管理</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" id="nav-setting" href="/setting">自動排班</a>
+          <a class="nav-link" id="nav-setting" onclick="setting()">自動排班</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/mainreservebreak">員工班表預假</a>
+          <a class="nav-link" onclick="mainreservebreak()">員工班表預假</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/mainfinalscheduling">員工班表</a>
+          <a class="nav-link" onclick="mainfinalscheduling()">員工班表</a>
         </li>
       </ul>
       <span class="navbar-Text" style="display:flex; align-items: center;" onclick="logout()"><span class="material-symbols-outlined">logout</span><span id="username">Username</span></span>
@@ -81,39 +82,31 @@
             <div class="container">
                 <div class="group">
                     <div class="container-setting">
-                        <div>小夜包班</div>
+                        <div>小夜包班人員(最多2名)</div>
                     </div>
-                    <div class="multi-selector-container">
-                        <select class="multi-selector" multiple style="display:none;">
-                            <option value="Item1">Item1</option>
-                            <option value="Item2">Item2</option>
-                            <option value="Item3">Item3</option>
-                        </select>    
-                    </div>
+                    <select id="night-staff-choices" multiple></select>
                 </div>
-                <hr>
+                <br>
                 <div class="group">
                     <div class="container-setting">
-                        <div>大夜包班</div>
+                        <div>大夜包班人員(最多2名)</div>
                     </div>
-                    <div class="multi-selector-container">
-                        <select class="multi-selector-midnight" multiple style="display:none;">
-                            <option value="Item1">Item1</option>
-                            <option value="Item2">Item2</option>
-                            <option value="Item3">Item3</option>
-                        </select>
-                    </div>
+                    <select id="midnight-staff-choices" multiple></select>
                 </div>
             </div>
         </div>
 
     <div class="btn-group">
     <button class="btn-group-edit" onclick="lastpage()">回到上一頁</button>
-    <button class="btn-group-save" onclick="saveSettingmember()">儲存設定</button>
+    <button class="btn-group-save" onclick="saveSettingmember()">預覽設定</button>
     </div>
     </div>
     </div>
     </div>
+<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.7.3/dist/alpine.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
 <script src="/static/setting1.js"></script>
+<script src="/static/navbar.js"></script>
 </body>
 </html>

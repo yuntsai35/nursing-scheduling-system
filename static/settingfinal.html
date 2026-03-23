@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Chiron+GoRound+TC:wght@200..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/settingmember.css">
+    <link rel="stylesheet" href="/static/settingfinal.css">
 </head>
 <body>
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
@@ -42,56 +42,60 @@
     <div class="main-container-title">
     <div class="title-group">
           <div class="title">自動排班設定</div>
-          <div class="title-explain" style="color: #005fb8;font-size: 18px;">步驟二: 選擇年分、月分及排班人員</div>
+          <div class="title-explain" style="color: #005fb8;font-size: 18px;">步驟四: 最終資料確認</div>
     </div>
     </div>
     <div class="main-container-top">
       <div class="options">
-        <div class="main-title">選擇建立的年分及月分</div>
+        <div class="main-title">工時設定</div>
         <div class="date-selector-group" style="display: flex; gap: 10px; align-items: center;">
-        <div>年份：</div>
-        <select id="select-year" class="form-select" style="width: auto;">
-            </select>
-        
-        <div>月份：</div>
-        <select id="select-month" class="form-select" style="width: auto;">
-            <option value="1">1月</option>
-            <option value="2">2月</option>
-            <option value="3">3月</option>
-            <option value="4">4月</option>
-            <option value="5">5月</option>
-            <option value="6">6月</option>
-            <option value="7">7月</option>
-            <option value="8">8月</option>
-            <option value="9">9月</option>
-            <option value="10">10月</option>
-            <option value="11">11月</option>
-            <option value="12">12月</option>
-        </select>
-        <span id="days-info" style="color: #666; margin-left: 10px;"></span>
+        <div>兩周內最少休息天數：</div><div id="final-min-rest-2w" class="select" style="width: auto;"></div>
+        <div>一個月內最少休息天數：</div><div id="final-min-rest-1m" class="select" style="width: auto;"></div>
+        <div>最多連續工作天數：</div><div id="final-max-work" class="select" style="width: auto;"></div>
+        <div>每週最多班別種類：</div><div id="final-max-shifts" class="select" style="width: auto;"></div>
         </div>
       </div>
     </div>   
 
+    <div class="main-container-top">
+      <div class="options">
+        <div class="main-title">選擇的年分及月分</div>
+        <div class="date-selector-group" style="display: flex; gap: 10px; align-items: center;">
+        <div>年份：</div><div id="final-year" class="select"></div>
+        <div>月份：</div><div id="final-month" class="select"></div>
+        <span id="final-days-info" style="color: #666; margin-left: 10px;"></span>
+        </div>
+      </div>
+    </div>   
 
     <div class="main-container-top">
       <div class="options">
         <div class="main-title">本月參與排班人員</div>
-        <div class="formGroup">
-            <input type="checkbox" class="checkAll" />
-            <label>全選</label>
-        </div>
         <div class="container-setting">
+        </div>
+  </div>
+  </div>  
+
+
+    <div class="main-container-top">
+      <div class="options">
+        <div class="main-title">每班人數及包班人員</div>
+        <div style="display: flex; align-items: center; justify-content: center;">
+          <div>白班人數：</div><div id="final-day-required" class="select" style="margin-right: 20px;"></div>
+          <div>小夜人數：</div><div id="final-night-required" class="select" style="margin-right: 20px;"></div>
+          <div>大夜人數：</div><div id="final-midnight-required" class="select"></div>
+          </div>
+        <div class="container-setting" style="display: flex; align-items: center; justify-content: center; margin-top: 10px;">
         </div>
     <div class="btn-group">
     <button class="btn-group-edit" onclick="lastpage()">回到上一頁</button>
-    <button class="btn-group-save" onclick="saveSettingmember()">前往班別人數設定</button>
+    <button class="btn-group-save" onclick="saveSettingmember()">設定資料確認</button>
     </div>
   </div>
   </div>  
   </main>
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
-    <script src="/static/settingmember.js"></script>
+    <script src="/static/settingfinal.js"></script>
     <script src="/static/navbar.js"></script>
   </body>
 </html>

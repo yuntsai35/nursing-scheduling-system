@@ -32,116 +32,115 @@ async function checkLoginStatus() {
 }
 window.addEventListener("load", checkLoginStatus);
 
+const default_member = {
+    required_dayshift: "6",
+    required_nightshift: "4",
+    required_midnightshift: "3"
+};
+
+function loadstep3(){
+    const staff_number = sessionStorage.getItem("settingstaffnumber_step3");
+    let data;
+
+    if (staff_number == null) {
+        data = default_member;
+    } else {
+        data = JSON.parse(staff_number);
+    }
+    document.querySelector("#required_dayshift").value=data.required_dayshift;
+    document.querySelector("#required_nightshift").value=data.required_nightshift;
+    document.querySelector("#required_midnightshift").value=data.required_midnightshift;
+}
+loadstep3();
+
+let nightChoicesInstance;
+let midnightChoicesInstance;
+
+document.addEventListener('DOMContentLoaded', function() {
+    nightChoicesInstance = new Choices('#night-staff-choices', {
+        removeItemButton: true,
+        maxItemCount: 2, 
+        placeholderValue: '請選擇小夜包班人員'
+    });
+
+    midnightChoicesInstance = new Choices('#midnight-staff-choices', {
+        removeItemButton: true,
+        maxItemCount: 2,
+        placeholderValue: '請選擇大夜包班人員'
+    });
+
+    loadstep3();
+    getStaffDataNight(); 
+});
+
 
 async function getStaffDataNight() {
-    const token = localStorage.getItem("token");
-    const response = await fetch(`/api/staff`, {
-        method: "GET",
-        headers: { "Authorization": `Bearer ${token}` }
-    });
-    const result = await response.json();
-
-    if (response.ok) {
-        const staffList = result.data;
-        // 核心修正：直接執行初始化，不要包在 window.onload
-        const targetSelect = document.querySelector('.multi-selector');
-        initMultiElement(targetSelect, staffList, "night");
+    const ward_id = sessionStorage.getItem("current_ward_id");
+    const step2member = sessionStorage.getItem("settingmember_step2");
+    if (!step2member) {
+        alert("找不到第二步的人員設定資料");
+        window.location.href=`/main/${ward_id}/`;
     }
-}
+    const step2Data = JSON.parse(step2member);
+    const selectedStaff = step2Data.selectedStaff;
 
-async function getStaffDataMidnight() {
-    const token = localStorage.getItem("token");
-    const response = await fetch(`/api/staff`, {
-        method: "GET",
-        headers: { "Authorization": `Bearer ${token}` }
-    });
-    const result = await response.json();
 
-    if (response.ok) {
-        const staffList = result.data;
-        // 核心修正：直接執行初始化，對準大夜的 class
-        const targetSelect = document.querySelector('.multi-selector-midnight');
-        initMultiElement(targetSelect, staffList, "midnight");
+        const staffChoices = selectedStaff.map(staff => ({
+            value: staff.name,
+            label: staff.name,
+            selected: false,
+            disabled: false
+        }));
+
+        // 將過濾後的人員名單餵給兩個實例
+        nightChoicesInstance.setChoices(staffChoices, 'value', 'label', true);
+        midnightChoicesInstance.setChoices(staffChoices, 'value', 'label', true);
+
+        // 讀取步驟三暫存回填包班人員 (如果有)
+        const step3Cache = sessionStorage.getItem("settingstaffnumber_step3");
+        if (step3Cache) {
+            const data = JSON.parse(step3Cache);
+            if (data.multi_selector) nightChoicesInstance.setChoiceByValue(data.multi_selector);
+            if (data.multi_selector_midnight) midnightChoicesInstance.setChoiceByValue(data.multi_selector_midnight);
+        }
     }
-}
 
-// 抽出來的通用初始化函式
-function initMultiElement(targetSelect, staffList, type) {
-    var multiElement = document.createElement('div');
-    multiElement.setAttribute('class', `dropdown dropdown-${type}`); // 加入區別用的 class
-    var html = `<div class="item text"><label></label></div>`;
 
-    staffList.forEach(staff => {
-        // 同步原始 select 的 options (如果 HTML 裡沒寫的話)
-        let opt = document.createElement('option');
-        opt.value = staff.full_name;
-        opt.text = staff.full_name;
-        targetSelect.appendChild(opt);
-
-        html += `<div class="item">
-                    <input type="checkbox" value="${staff.full_name}"/>
-                    <span>${staff.full_name}</span>
-                 </div>`;
-    });
-    
-    multiElement.innerHTML = html;
-    targetSelect.parentElement.appendChild(multiElement);
-
-    // 設定點擊事件：只針對當前這個 multiElement 內部的 input
-    const checkboxes = multiElement.querySelectorAll('input[type="checkbox"]');
-    const label = multiElement.querySelector('.text label');
-
-    checkboxes.forEach(function(checkItem) {
-        checkItem.addEventListener("click", function(e) {
-            let resultText = '';
-            // 只抓「當前選單」被勾選的
-            let checkedItems = multiElement.querySelectorAll('input:checked[type="checkbox"]');
-            
-            checkedItems.forEach(function(selectItem) {
-                if (resultText !== '') resultText += ',';
-                resultText += selectItem.value;
-            });
-
-            // 更新當前選單的 Label
-            label.innerText = resultText;
-
-            // 同步回原本對應的 ListBox (targetSelect)
-            let option = targetSelect.querySelector(`option[value="${e.target.value}"]`);
-            if (option) option.selected = e.target.checked;
-        });
-    });
-}
-
-// 執行兩次
-getStaffDataNight();
-getStaffDataMidnight();
-
-async function saveSettingmember(){
+async function saveSettingmember() {
+    const ward_id = sessionStorage.getItem("current_ward_id");
     const token = localStorage.getItem("token"); 
+
+    // 取得人數設定
     const required_dayshift = document.getElementById("required_dayshift").value;
     const required_nightshift = document.getElementById("required_nightshift").value;
     const required_midnightshift = document.getElementById("required_midnightshift").value;
 
-    const nightSelect = document.querySelector('.multi-selector');
-    const selectedNightStaff = Array.from(nightSelect.selectedOptions).map(opt => opt.value);
-    
-    const midnightSelect = document.querySelector('.multi-selector-midnight');
-    const selectedMidnightStaff = Array.from(midnightSelect.selectedOptions).map(opt => opt.value);
+    // 從 Choices.js 實例取得選中的人員陣列
+    const selectedNightStaff = nightChoicesInstance.getValue(true);
+    const selectedMidnightStaff = midnightChoicesInstance.getValue(true);
 
+    const duplicateStaff = selectedNightStaff.filter(staff => selectedMidnightStaff.includes(staff));
 
-    const response = await fetch(`/api/settingstaffnumber`, {
-        method: "POST",
-        headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json"
-        },
-        body:JSON.stringify({"required_dayshift":required_dayshift,"required_nightshift":required_nightshift,"required_mignightshift":required_midnightshift,"multi_selector":selectedNightStaff,"multi_selector_midnight":selectedMidnightStaff
-
-        })}) 
-    
-    const result = await response.json();
-    if (response.ok && result.data !== null){
-        alert("儲存成功！");
-        window.location.href="/main"
+    if(duplicateStaff.length>0){
+        alert("大小夜包班人員不可出現重複");
+        return;
     }
+
+    const payload = {
+        "required_dayshift": required_dayshift,
+        "required_nightshift": required_nightshift,
+        "required_midnightshift": required_midnightshift,
+        "multi_selector": selectedNightStaff,
+        "multi_selector_midnight": selectedMidnightStaff
+    };
+
+    // 更新本頁暫存
+    sessionStorage.setItem("settingstaffnumber_step3", JSON.stringify(payload));
+
+    window.location.href = `/settingfinal/${ward_id}/`;
+    }
+
+function lastpage(){
+    const ward_id = sessionStorage.getItem("current_ward_id");
+    window.location.href=`/settingmember/${ward_id}`
 }

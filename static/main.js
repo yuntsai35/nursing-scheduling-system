@@ -3,6 +3,14 @@ function logout() {
     window.location.href = "/";
 }
 
+function getCurrentWard(){
+    const wardId = sessionStorage.getItem("current_ward_id");
+    if (!wardId) {
+        window.location.href = "/index";
+    }
+    return wardId;
+}
+
 async function checkLoginStatus() {
     const token = localStorage.getItem("token");
 
@@ -41,26 +49,18 @@ async function checkLoginStatus() {
 }
 window.addEventListener("load", checkLoginStatus);
 
-function setting() {
-    window.location.href = "/setting";
-}
 
-function staff(role) {
-   if (role == generalstaff){
-    window.location.href ="/staff?role=generalstaff";}
-}
-function set(role) {
-    if (role == generalstaff){
-    window.location.href ="/setting1";
-   }
-}
-function mainreservebreak() {
-    window.location.href = "/mainreservebreak";
-}
+async function getStaffData() {
+    const ward_id = sessionStorage.getItem("current_ward_id");
+    const token = sessionStorage.getItem("token");
 
-function mainfinalscheduling() {
-    window.location.href = "/mainfinalscheduling";
+    const response = await fetch(`/api/ward/${ward_id}/staff`, {
+        headers: { "Authorization": `Bearer ${token}` }
+    });
+
+    const result = await response.json();
+    if (response.ok) {
+        renderTable(result.data); // 每次都拿最新的渲染
+    }
 }
-function main(){
-    Window.location.herf="/"
-}
+getStaffData()

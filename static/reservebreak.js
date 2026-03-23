@@ -45,7 +45,7 @@ const urlParams = new URLSearchParams(window.location.search);
 const month = urlParams.get('date');
 document.querySelector("#reservemonth").textContent=month+"月";
 
-// 頁面載入時先初始化空的 Choices
+
 document.addEventListener('DOMContentLoaded', function() {
     leaveChoicesInstance = new Choices('#choices-multiple-remove-button', {
         removeItemButton: true,
@@ -56,8 +56,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 //人名資料scheduled_member
 async function getStaffData() {
+    const ward_id = sessionStorage.getItem("current_ward_id");
     const token = localStorage.getItem("token"); 
-    const response = await fetch(`/api/reservestaff/${month}`, {
+    const response = await fetch(`/api/ward/${ward_id}/reservestaff/${month}`, {
         method: "GET",
         headers: {
             "Authorization": `Bearer ${token}`
@@ -121,10 +122,11 @@ async function getStaffData() {
 getStaffData();
 
 async function updateleavedates(){
+    const ward_id = sessionStorage.getItem("current_ward_id");
     const token = localStorage.getItem("token"); 
     const leave_dates= leaveChoicesInstance.getValue(true);
     const reserve_dates = leave_dates.join(",");
-    const response = await fetch(`/api/settingReserveBreak`, {
+    const response = await fetch(`/api/ward/${ward_id}/settingReserveBreak`, {
         method: "PATCH",
         headers: {
             "Authorization": `Bearer ${token}`,
@@ -140,10 +142,11 @@ async function updateleavedates(){
 }
 
 async function finalscheduling(){
+     const ward_id = sessionStorage.getItem("current_ward_id");
     const token = localStorage.getItem("token"); 
     const hint = document.querySelector(".hint");
     hint.textContent = "正在生成班表，請稍候...";
-    const response = await fetch(`/api/finalscheduling/${month}`, {
+    const response = await fetch(`/api/ward/${ward_id}/finalscheduling/${month}`, {
         method: "POST",
         headers: {
             "Authorization": `Bearer ${token}`,
@@ -154,7 +157,7 @@ async function finalscheduling(){
     const result = await response.json();
         
     if (response.ok && result.ok){
-        window.location.href = `/finalscheduling?date=${month}`;
+        window.location.href = `/finalscheduling/${ward_id}?date=${month}`;
 
     }else{
         hint.textContent = result.message;

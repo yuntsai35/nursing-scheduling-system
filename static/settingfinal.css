@@ -1,0 +1,135 @@
+body{
+    font-family: "Chiron GoRound TC", sans-serif;
+    font-optical-sizing: auto;
+    background-color: #F8FAFC;
+}
+
+.navbar{
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  padding: 10px 20px;
+}
+
+.navbar-brand {
+  color: #005fb8 !important;
+  font-weight: bold;
+}
+.nav-item:hover, 
+.nav-item.active { 
+  background-color: #E3F2FD !important;
+  border-radius: 5px;
+}
+
+.nav-item:hover .nav-link, 
+.nav-item.active .nav-link {
+  color: #005fb8 !important;
+  font-weight: bold !important;
+}
+
+.navbar.bg-body-tertiary {
+  background-color: #FFFFFF !important;
+}
+
+
+.main-container {
+    max-width: 750px; 
+    width: 90%;       
+    min-height: 400px; 
+    background-color: #ffffff; 
+    border: 1px solid #dee2e6; 
+    border-radius: 20px;      
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    padding: 30px;
+    display:flex;
+    justify-content: center;
+    
+}
+.main-container-top{
+    max-width: 750px; 
+    width: 90%;       
+    min-height: 180px; 
+    background-color: #ffffff; 
+    border: 1px solid #dee2e6; 
+    border-radius: 20px;      
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    margin: 30px auto; 
+    padding: 30px;
+    display:flex;
+    justify-content: center;
+}
+
+.checkbox-group{
+    background-color: #cce0ff;
+    height: 30px;
+    width: 90px;
+    padding-left: 12px;
+    padding-right:10px;
+    padding-bottom: 10px;
+    padding-top:3px;
+    border-radius: 20px;
+    margin-bottom: 10px;   
+}
+.formGroup{
+    background-color: #cce0ff;
+    height: 30px;
+    width: 65px;
+    padding-left: 12px;
+    padding-right:10px;
+    padding-bottom: 10px;
+    padding-top:3px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+
+}
+.main-container-title{
+    display: flex;
+    padding-left: 25%;
+    margin-top: 20px;
+}
+
+.title-group{
+    font-size: 30px;
+    text-align: left;
+
+}
+.main-title{
+    font-size: 26px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-align: center; 
+}
+.container-setting{
+    display: grid;   
+    grid-template-columns: repeat(4, 1fr);
+    column-gap:30px;
+
+}
+.btn-group{
+    margin-bottom: 20px;
+    margin-top:20px;
+    display: flex;
+    justify-content: center;
+    
+}
+.btn-group-edit{
+    margin-right: 10px;
+    border-radius: 5px;
+    padding: 5px 10px;
+    background-color: #6c757d;
+    border-color: #6c757d;
+    color:#fff;
+
+}
+.btn-group-save{
+    margin-right: 10px;
+    border-radius: 5px;
+    padding: 5px 10px;
+    background-color:#198754;
+    border-color: #198754;
+    color:#fff;
+}
+.select{
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    padding: 10px 15px;
+}

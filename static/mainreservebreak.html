@@ -18,19 +18,19 @@
     <div class="collapse navbar-collapse" id="navbarText">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a class="nav-link" href="/main">首頁</a>
+          <a class="nav-link" onclick="main()">首頁</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" id="nav-staffmanagement" style="cursor: pointer;" href="/staff?role=generalstaff" >人員管理</a>
+          <a class="nav-link" id="nav-staffmanagement" style="cursor: pointer;" onclick="staff()" >人員管理</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" id="nav-setting" href="/setting">自動排班</a>
+          <a class="nav-link" id="nav-setting" onclick="setting()">自動排班</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/mainreservebreak">員工班表預假</a>
+          <a class="nav-link" onclick="mainreservebreak()">員工班表預假</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/mainfinalscheduling">員工班表</a>
+          <a class="nav-link" onclick="mainfinalscheduling()">員工班表</a>
         </li>
       </ul>
       <span class="navbar-Text" style="display:flex; align-items: center;" onclick="logout()"><span class="material-symbols-outlined">logout</span><span id="username">Username</span></span>
@@ -47,6 +47,7 @@
     </div>
     </main>
 
-<script src="static/mainreservebreak.js"></script>
+<script src="/static/mainreservebreak.js"></script>
+<script src="/static/navbar.js"></script>
 </body>
 </html>

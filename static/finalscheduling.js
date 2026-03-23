@@ -40,8 +40,9 @@ document.querySelector("#reservemonth").textContent=month+"月";
 
 //人名資料scheduled_member
 async function getStaffData() {
+    const ward_id = sessionStorage.getItem("current_ward_id");
     const token = localStorage.getItem("token"); 
-    const response = await fetch(`/api/finalstaff/${month}`, {
+    const response = await fetch(`/api/ward/${ward_id}/finalstaff/${month}`, {
         method: "GET",
         headers: {
             "Authorization": `Bearer ${token}`

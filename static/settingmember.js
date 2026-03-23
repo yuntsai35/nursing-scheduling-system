@@ -35,8 +35,9 @@ window.addEventListener("load", checkLoginStatus);
 
 async function getStaffData() {
     const token = localStorage.getItem("token");
+    const ward_id = sessionStorage.getItem("current_ward_id");
 
-    const response = await fetch(`/api/staff`, {
+    const response = await fetch(`/api/ward/${ward_id}/staff`, {
         method: "GET",
         headers: {
             "Authorization": `Bearer ${token}`
@@ -62,19 +63,15 @@ async function getStaffData() {
             container.appendChild(div);
         });
 
-        //全選功能
         const selectAllCheckbox = document.querySelector(".checkAll");
         const taskCheckboxes = document.querySelectorAll(".checkbox-name");
 
-        // 監聽全選
         selectAllCheckbox.addEventListener("change", function() {
             taskCheckboxes.forEach(function(checkbox) {
-                // 正確做法：將子選框狀態設為跟全選框一致
                 checkbox.checked = selectAllCheckbox.checked; 
             });
         });
 
-        // 監聽子選框
         taskCheckboxes.forEach(function(checkbox) {
             checkbox.addEventListener("change", function() {
                 const allSelected = Array.from(taskCheckboxes).every(cb => cb.checked);
@@ -88,7 +85,8 @@ async function getStaffData() {
 getStaffData();
 
 function lastpage(){
-    window.location.href="/setting"
+    const ward_id = sessionStorage.getItem("current_ward_id");
+    window.location.href=`/setting/${ward_id}`
 }
 
 function initDateSelector() {
@@ -141,6 +139,7 @@ function initDateSelector() {
 initDateSelector();
 
 async function saveSettingmember(){
+    const ward_id = sessionStorage.getItem("current_ward_id");
     const token = localStorage.getItem("token"); 
     const year = document.getElementById("select-year").value;
     const month = document.getElementById("select-month").value;
@@ -148,7 +147,10 @@ async function saveSettingmember(){
     
     //選擇被勾選的id
     const checkedNodes = document.querySelectorAll(".checkbox-name:checked");
-    const selectedStaff = Array.from(checkedNodes).map(cb => cb.id);
+    const selectedStaff = Array.from(checkedNodes).map(cb => ({
+        id: cb.id,
+        name: cb.getAttribute('name')
+    }));
 
     if (selectedStaff.length === 0) { 
     alert("請至少選擇一位員工！");
@@ -157,18 +159,9 @@ async function saveSettingmember(){
 
     const days= window.currentMonthDays;
 
-    const response = await fetch(`/api/settingmember`, {
-        method: "POST",
-        headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json"
-        },
-        body:JSON.stringify({"selectedDate":selected_date, "selectedStaff":selectedStaff, "days": days})
-    });    
-    const result = await response.json();
-    if (response.ok && result.data !== null){
-        alert("儲存成功！");
-        window.location.href="/setting1"
-    }
-}
+    const data={"selectedDate":selected_date, "selectedStaff":selectedStaff, "days": days}
+    sessionStorage.setItem("settingmember_step2", JSON.stringify(data));
+    
+    window.location.href = `/setting1/${ward_id}`;
 
+}
