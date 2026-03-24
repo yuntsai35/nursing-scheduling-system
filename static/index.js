@@ -147,3 +147,24 @@ async function deleteWard(wardId) {
         alert(result.message);
     }
 }
+
+function initMemberDropdown() {
+    const menu = document.getElementById('user-menu');
+    const dropdown = document.getElementById('user-dropdown');
+
+
+    menu.addEventListener('click', function(e) {
+        e.stopPropagation();
+        
+        if (dropdown.style.display === 'none' || dropdown.style.display === '') {
+            dropdown.style.display = 'block';
+        } else {
+            dropdown.style.display = 'none';
+        }
+    });
+    document.addEventListener('click', function() {
+        dropdown.style.display = 'none';
+    });
+}
+
+window.addEventListener("DOMContentLoaded", initMemberDropdown);

@@ -33,10 +33,17 @@
           <a class="nav-link" onclick="mainfinalscheduling()">員工班表</a>
         </li>
       </ul>
-      <span class="navbar-Text" style="display:flex; align-items: center;" onclick="logout()"><span class="material-symbols-outlined">logout</span><span id="username">Username</span></span>
+      <span class="navbar-Text" id="user-menu" style="display:flex; align-items: center;" onclick="memberdropdown()"><span class="material-symbols-outlined">logout</span><span id="username">Username</span></span>
     </div>
   </div>
 </nav>
+<span class="memberdropdown" style="display:flex; align-items: center; position: relative; cursor: pointer;">
+    <div id="user-dropdown" class="user-dropdown-content">
+        <a href="/membership">會員設定</a>
+        <hr>
+        <div onclick="logout()" class="logout-item">登出</div>
+    </div>
+</span>
 
     <main>
     <div>

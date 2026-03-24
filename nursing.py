@@ -60,6 +60,10 @@ async def index(request: Request):
 @app.get("/finalscheduling/{ward_id}", include_in_schema=False)
 async def index(request: Request):
 	return FileResponse("./static/finalscheduling.html", media_type="text/html")
+@app.get("/membership", include_in_schema=False)
+async def index(request: Request):
+	return FileResponse("./static/membership.html", media_type="text/html")
+
 
 
 
@@ -491,6 +495,93 @@ async def editstaff(request:Request,ward_id: int, body: dict = Body(...)):
     finally:
          db.close()
     
+#會員姓名及修改
+@app.get("/api/memberinfo")
+async def getmembership(request: Request):
+    db = SessionLocal()  
+    bearerToken = request.headers.get("Authorization")
+    
+    if not bearerToken:
+        return JSONResponse(
+            status_code=403,
+            content={"error": True, "message": "未登入系統，拒絕存取"}
+        )
+
+    try:
+        token = bearerToken.split(" ")[1]
+        payload = jwt.decode(token, os.getenv("SECRET_PASSWORD"), algorithms=["HS256"])
+        current_user_id = payload["id"]
+
+        user_data = db.query(member).filter(member.id == current_user_id).first()
+
+        if not user_data:
+            return JSONResponse(
+                status_code=404,
+                content={"error": True, "message": "找不到該會員資料"}
+            )
+
+
+        return {"data": {
+                "name": user_data.full_name,  
+                "employee_num":user_data.employee_num,
+                "staffid": user_data.id}}
+
+    except jwt.PyJWTError: 
+        return JSONResponse(
+            status_code=403,
+            content={"error": True, "message": "憑證無效或已過期"}
+        )
+    except Exception as e:
+        print(f"抓取會員資料發生錯誤: {e}")
+        return JSONResponse(
+            status_code=500,
+            content={"error": True, "message": "伺服器內部錯誤"}
+        )
+    finally:
+        db.close()  
+     
+#會員姓名及修改
+@app.patch("/api/membership")
+async def updatemembership(request: Request, body: dict = Body(...)):
+    db = SessionLocal()
+    bearerToken = request.headers.get("Authorization")
+    if not bearerToken:
+        return JSONResponse(
+				status_code=403,
+				content={
+					"error": True,
+					"message": "未登入系統，拒絕存取"})
+
+    if bearerToken:
+        token = bearerToken.split(" ")
+        payload = jwt.decode(token[1], os.getenv("SECRET_PASSWORD"), algorithms=["HS256"])
+
+    try:
+        current_user_id = payload["id"]
+        data = db.query(member).filter(member.id == current_user_id).first()
+
+        #改姓名
+        if "name" in body and body["name"]:
+            data.full_name = body["name"]
+            db.commit()
+            return {"ok": True, "message": "姓名修改成功"}
+
+        #改密碼
+        if "newpassword" in body:
+            if data.password != body.get("oldpassword"):
+                return JSONResponse(status_code=400, content={"error": True, "message": "舊密碼錯誤"})
+            
+            data.password = body["newpassword"]
+            db.commit()
+            return {"ok": True, "message": "密碼修改成功"}
+
+    except Exception as e:
+        db.rollback()
+        return JSONResponse(status_code=500, content={"error": True, "message": "儲存失敗"})
+    finally:
+        db.close()
+
+
 #一次設定部分全部
 @app.post("/api/ward/{ward_id}/setting")
 async def updatesetting(request:Request, ward_id: int, body: dict = Body(...)):

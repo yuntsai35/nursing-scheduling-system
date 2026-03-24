@@ -14,7 +14,6 @@ body{
   color: #005fb8 !important;
   font-weight: bold;
 }
-
 .navbar-Text:hover{ 
   background-color: #E3F2FD !important;
   border-radius: 5px;
@@ -38,30 +37,47 @@ body{
   background-color: #FFFFFF !important;
 }
 
-
-.title{
-    font-size: 26px;
-    margin-top: 20px;
-}
-.main-container{
+.main{
+    margin-top: 30px;
     display: flex;
-    align-items: center;
     justify-content: center;
-    flex-direction: column;
-}
 
-.date-card {
-    border: 1px solid #ccc; 
-    border-radius: 8px; 
-    margin-bottom: 20px;
-    padding:20px;
+}
+.main-container {
+    width: 100%;             
+    max-width: 800px;      
+}
+.main-title{
+    font-weight: bold;
+    color:#448899;
+    font-size: 25px;
+    text-align: center;
+
+}
+.main-mid-container{
     margin-top: 20px;
+    display: flex;
+    justify-content: center;
+}
+.change-name,.info-title{
+    font-weight: bold;
+    color:#448899;
+    margin-right: 20px;
 }
 
-.date-card:hover {
-  background-color: #F0F9FF;
-  border-color: #005fb8;     
-  transform: translateY(-5px);  
+.update-title{
+    font-weight: bold;
+    color:#448899;
+
+}
+   
+button{
+    color:white;
+    background-color:#448899;
+    border:none;
+    padding:5px 10px;
+    border-radius: 5px;
+
 }
 
 .user-dropdown-content {
@@ -108,4 +124,12 @@ body{
   align-items: center; 
   position: relative; 
   cursor: pointer;
+}
+.info,.btn-container {
+    display: flex; 
+    flex-direction: column; 
+    align-items: center;    /* 讓姓名、帳號文字居中對齊 */
+    text-align: center;
+    width: 100%;
+    margin-bottom: 30px;
 }
