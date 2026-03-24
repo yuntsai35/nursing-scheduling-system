@@ -83,7 +83,6 @@ class finalscheduletable(Base):
     schedule_data = Column(JSONB, nullable=False) 
      
 # if not exists,create
-Base.metadata.create_all(engine)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
