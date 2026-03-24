@@ -1,5 +1,6 @@
 function logout() {
     localStorage.removeItem("token");
+    sessionStorage.clear();
     window.location.href = "/";
 }
 
@@ -125,28 +126,6 @@ async function getmember_ward() {
     }
 }
 getmember_ward();
-
-async function deleteWard(wardId) {
-    if (!confirm("確定要刪除此病房嗎？")) return;
-
-    const token = localStorage.getItem("token");
-    const response = await fetch("/api/member_ward", {
-        method: "DELETE",
-        headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ "ward_id": wardId })
-    });
-
-    if (response.ok) {
-        alert("刪除成功");
-        window.location.reload();
-    } else {
-        const result = await response.json();
-        alert(result.message);
-    }
-}
 
 function initMemberDropdown() {
     const menu = document.getElementById('user-menu');

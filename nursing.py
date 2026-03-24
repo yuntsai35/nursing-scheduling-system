@@ -218,8 +218,9 @@ async def insertward(request: Request, body: dict = Body(...)):
     finally:
          db.close()
 
+#快取ward資料 為了驗證
 @app.get("/api/member_ward")
-async def get_staff_list(request: Request):
+async def get_ward_list(request: Request):
     db=SessionLocal()
     bearerToken = request.headers.get("Authorization")
     if not bearerToken:
@@ -234,6 +235,13 @@ async def get_staff_list(request: Request):
         payload = jwt.decode(token[1], os.getenv("SECRET_PASSWORD"), algorithms=["HS256"])
         id = payload["id"]
 
+    cache_key = f"member_list:member_id:{id}"
+
+    cached_data = r.get(cache_key)
+    if cached_data:
+        return {"data": json.loads(cached_data),"source": "redis"}
+        
+
     try:
         result=db.query(member_ward.role,member_ward.ward_id,ward.ward_name).join(ward, member_ward.ward_id == ward.id).filter(member_ward.staff_id == id).all()
         data_list = []
@@ -243,6 +251,8 @@ async def get_staff_list(request: Request):
                 "ward_id": row.ward_id,
                 "ward_name":row.ward_name
             })
+
+        r.setex(cache_key, 3600, json.dumps(data_list))
 
         return {"data":data_list}
     except HTTPException:
@@ -300,7 +310,7 @@ async def deletemember_ward(request:Request, body: dict = Body(...)):
 #員工管理
 @app.get("/api/ward/{ward_id}/staff")
 async def get_staff_list(request: Request, ward_id: int = None):
-    cache_key = f"memeber_list:ward:{ward_id}"
+    cache_key = f"member_list:ward:{ward_id}"
 
     cached_data = r.get(cache_key)
     if cached_data:
@@ -444,8 +454,10 @@ async def insertstaff(request: Request,ward_id: int, body: dict = Body(...)):
         
         db.add(new_relation)
         db.commit()
-        cache_key = f"memeber_list:ward:{ward_id}"
+
+        cache_key = f"member_list:ward:{ward_id}"
         r.delete(cache_key)
+        
         return{"ok":True}
     
     except jwt.PyJWTError:
@@ -488,7 +500,7 @@ async def deletestaff(request:Request,ward_id: int, body: dict = Body(...)):
         db.delete(target)
         db.commit()
         
-        cache_key = f"memeber_list:ward:{ward_id}"
+        cache_key = f"member_list:ward:{ward_id}"
         r.delete(cache_key)
 
         return {"ok":True}
@@ -530,7 +542,9 @@ async def editstaff(request:Request,ward_id: int, body: dict = Body(...)):
             target.level = level
         db.commit()
 
-        r.delete(f"memeber_list:ward:{ward_id}")
+        cache_key = f"member_list:ward:{ward_id}"
+        r.delete(cache_key)
+        
         return {"ok": True}
     
     except jwt.PyJWTError:
@@ -802,6 +816,51 @@ async def getreservestaff(request: Request,ward_id: int, date: str = None):
 				detail={
 					"error": True,
 					"message": "請依照情境提供對應的錯誤訊息"
+				}
+			)
+    finally:
+         db.close()
+
+
+@app.patch("/api/ward/{ward_id}/settingReserveBreak")
+async def updateReserveBreak(request:Request,ward_id: int,body: dict = Body(...)):
+    db=SessionLocal()
+    bearerToken = request.headers.get("Authorization")
+    if not bearerToken:
+        return JSONResponse(
+				status_code=403,
+				content={
+					"error": True,
+					"message": "未登入系統，拒絕存取"})
+
+    if bearerToken:
+        token = bearerToken.split(" ")
+        payload = jwt.decode(token[1], os.getenv("SECRET_PASSWORD"), algorithms=["HS256"])
+        id=payload["id"]
+
+    try:
+        leave_dates = body["reserve_dates"]
+        schedule_id = body["schedule_id"]
+
+
+        target = db.query(scheduled_member).filter(scheduled_member.staff_id == id,scheduled_member.ward_id == ward_id,scheduled_member.schedule_id == schedule_id).first()
+        target.leave_dates = leave_dates
+        db.commit()
+        return {"ok": True}
+
+    except jwt.PyJWTError:
+        return JSONResponse(
+            status_code=403,
+            content={"error": True, "message": "未登入系統，拒絕存取"}
+        )
+
+    except Exception as e:
+            print(f"後端發生錯誤：{e}")
+            return JSONResponse(
+				status_code=500,
+				content={
+					"error": True,
+					"message": "伺服器內部錯誤"
 				}
 			)
     finally:

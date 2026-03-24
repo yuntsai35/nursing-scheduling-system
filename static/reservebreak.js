@@ -1,8 +1,10 @@
 function logout() {
     localStorage.removeItem("token");
+    sessionStorage.clear();
     window.location.href = "/";
 }
 async function checkLoginStatus() {
+    const userRole = sessionStorage.getItem("current_role");
     const token = localStorage.getItem("token");
 
     let response = await fetch("/api/user/auth", {
@@ -16,10 +18,8 @@ async function checkLoginStatus() {
 
     if (response.ok && result.data !== null) {
       document.querySelector("#username").textContent = result.data.full_name;
+      sessionStorage.setItem("current_user_id", result.data.id);
       
-      const userRole = result.data.role;
-      
-
         if (userRole === "Staff_Nurse") {
             const navbarsetting = document.querySelector("#nav-setting");
             const navbarautocalendar = document.querySelector("#nav-staffmanagement");
@@ -27,17 +27,12 @@ async function checkLoginStatus() {
             navbarsetting.style.display = "none";
             navbarautocalendar.style.display = "none";
             btnsave.style.display="none";
-            document.querySelector(".selector").style.display = "block";
-            document.querySelector(".btn-group-edit").style.display = "flex";
-            document.querySelector(".selector-explain").style.display = "block";
-            btnsave.style.display="none";
         }
       
     } else {
       window.location.href = "/";
     }
 }
-window.addEventListener("load", checkLoginStatus);
 
 
 //標題
@@ -67,6 +62,20 @@ async function getStaffData() {
     const result = await response.json();
         
         if (response.ok && result.data && result.data.length > 0) {
+            const currentUserId = sessionStorage.getItem("current_user_id");
+
+           const isUserInReserveList = result.data.find(staff => staff.staff_id == currentUserId);
+        
+        if (isUserInReserveList) {
+            document.querySelector(".selector").style.display = "block";
+            document.querySelector(".btn-group-edit").style.display = "flex";
+            document.querySelector(".selector-explain").style.display = "block";
+        } else {
+            document.querySelector(".selector").style.display = "none";
+            document.querySelector(".btn-group-edit").style.display = "none";
+            document.querySelector(".selector-explain").style.display = "none";
+        }
+           
             //日期選項
             const dateChoices = [];
             for (let date = 1; date <= result.data[0].schedule_date; date++) {
@@ -119,7 +128,11 @@ async function getStaffData() {
             tablelist.appendChild(tbody);
         };
 }
-getStaffData();
+async function init() {
+    await checkLoginStatus(); 
+    await getStaffData(); 
+}
+window.addEventListener("load", init);
 
 async function updateleavedates(){
     const ward_id = sessionStorage.getItem("current_ward_id");

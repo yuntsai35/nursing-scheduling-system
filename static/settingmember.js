@@ -1,8 +1,10 @@
 function logout() {
     localStorage.removeItem("token");
+    sessionStorage.clear();
     window.location.href = "/";
 }
 async function checkLoginStatus() {
+    const userRole = sessionStorage.getItem("current_role");
     const token = localStorage.getItem("token");
 
     let response = await fetch("/api/user/auth", {
@@ -16,8 +18,7 @@ async function checkLoginStatus() {
 
     if (response.ok && result.data !== null) {
       document.querySelector("#username").textContent = result.data.full_name;
-      
-      const userRole = result.data.role;
+    
 
         if (userRole === "Staff_Nurse") {
             const navbarsetting = document.querySelector("#nav-setting");
