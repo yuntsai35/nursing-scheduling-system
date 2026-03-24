@@ -59,7 +59,7 @@ main{
     left: 50%;            
     transform: translate(-50%, -50%); 
     
-    width: 600px;
+    width: 475px;
     background: white;
     padding: 30px;        
     border-radius: 8px;   
@@ -198,4 +198,20 @@ input{
   align-items: center; 
   position: relative; 
   cursor: pointer;
+}
+
+.choices { 
+    min-width: 300px;
+    margin-bottom: 0;
+}
+
+#overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); 
+    z-index: 998; 
 }

@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Chiron+GoRound+TC:wght@200..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
     <link rel="stylesheet" href="/static/staff.css">
   </head>
 <body>
@@ -44,54 +45,50 @@
         <div onclick="logout()" class="logout-item">登出</div>
     </div>
 </span>
-
+<div id="overlay"></div>
 <main>
   <div class="main-container">
     <div class="title" style="display: flex;justify-content: center;">人員管理</div>
 
     <div class="title-container">
-      <button type="button" class="btn btn-dark" id="addStaff-btn" onclick='openmodal("add")'>建立員工檔案</button>
+      <button type="button" class="btn btn-danger" id="deleteward-btn" onclick='openAddPage()'>刪除全部群組資料</button>
+      <button type="button" class="btn btn-dark" id="addStaff-btn" onclick='openAddPage()'>建立員工檔案</button>
     </div>
+
+
     <div class="main-input">
       <div class="main-input-container">
-        <div class="main-input-title">員工管理新增表單</div>
-        <div class="main-input-group">
-        <div class="main-input-subtitle">員工編號:</div>
-        <input class="addStaff-ID" placeholder="員工編號">
-        </div>
-        <div class="main-input-group">
-        <div class="main-input-subtitle">姓名:</div>
-        <input class="addStaff-name" placeholder="姓名">
+        <div class="main-input-title" id="form-title" style="margin-bottom: 10px;">員工管理新增表單</div>
+
+        <div id="edit-info-group" style="display: none; margin-bottom: 15px; padding: 10px; background: #f8fafc; border-radius: 5px;">
+            <div>員工編號：<span id="display-emp-num"></span></div>
+            <div>姓名：<span id="display-full-name"></span></div>
+            <input type="hidden" id="edit-staff-id"> 
         </div>
 
-        <form name="myForm" class="main-input-container">
-        <div class="main-input-group">
-        <div class="main-input-subtitle">職稱:</div>
-          <select class="addStaff-role" id="addStaff-role" onChange="renew(this.value);">
-            <option value="" disabled selected>請選擇職稱</option>
-            <option value="IT_Admin">IT_Admin</option>
-            <option value="Head_Nurse">Head_Nurse</option>
-            <option value="Staff_Nurse">Staff_Nurse</option>
-          </select>
+        <div class="main-input-group" id="add-select-group" style="margin-bottom: 10px;">
+            <div class="main-input-subtitle">選擇新員工:</div>
+            <select id="available-staff-choices" class="form-control">
+                <option value="">請點選名字</option>
+            </select>
         </div>
-        <div class="main-input-group">
+
+        <div class="main-input-group" style="margin-bottom: 10px;">
           <div class="main-input-subtitle">職級:</div>
-          <select name="member">
-            <option value="">請先選取職級
+          <select class="addStaff-role" id="addStaff-role">
+            <option value="" disabled selected>請選擇職級</option>
+            <option value="none">None</option>
+            <option value="N0">N0</option>
+            <option value="N1">N1</option>
+            <option value="N2">N2</option>
+            <option value="N3">N3</option>
+            <option value="N4">N4</option>
           </select>
         </div>
-        </form>
 
-        <div class="main-input-group">
-        <div class="main-input-subtitle">病房:</div>
-        <input class="addStaff-ward" placeholder="病房">
-        </div>
-        <div class="main-input-group">
-        <div class="main-input-subtitle">入職日期:</div>
-        <input type="date" class="addStaff-joindate" placeholder="入職日期">
-        </div>
         <div class="main-input-hint"></div>
-        <button type="button" class="btn btn-success" id="insert-btn" onclick="insertstaffinfo()">新增員工檔案</button>
+        <button type="button" class="btn btn-success" id="submit-insert-btn" onclick="insertstaffinfo()">新增員工檔案</button>
+        <button type="button" class="btn btn-primary" id="submit-edit-btn" style="display: none;" onclick="editstaffinfo()">儲存修改</button>
         <button type="button" class="btn btn-danger" onclick="closeAddPage()">關閉</button>
       </div>
     </div>
@@ -113,6 +110,7 @@
   </div>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 <script src="/static/staff.js"></script>
 <script src="/static/navbar.js"></script>
 </body>

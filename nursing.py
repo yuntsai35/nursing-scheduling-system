@@ -319,7 +319,7 @@ async def get_staff_list(request: Request, ward_id: int = None):
         id = payload["id"]
 
     try:
-        results = db.query(member, member_ward.role, member_ward.level,ward.ward_name).join(member_ward, member.id == member_ward.staff_id).join(ward, member_ward.ward_id == ward.id).filter(member_ward.ward_id == ward_id, member_ward.role == 'Staff_Nurse').order_by(member.employee_num.asc()).all()
+        results = db.query(member, member_ward.role, member_ward.level,ward.ward_name).join(member_ward, member.id == member_ward.staff_id).join(ward, member_ward.ward_id == ward.id).filter(member_ward.ward_id == ward_id).order_by(member.employee_num.asc()).all()
 
         data_list = []
 
@@ -336,6 +336,49 @@ async def get_staff_list(request: Request, ward_id: int = None):
         r.setex(cache_key, 3600, json.dumps(data_list))
 
         return {"data": data_list,"source": "sql"}
+    except HTTPException:
+            raise HTTPException(
+				status_code=500,
+				detail={
+					"error": True,
+					"message": "請依照情境提供對應的錯誤訊息"
+				}
+			)
+    finally:
+         db.close()
+
+#不在本群組內
+@app.get("/api/ward/{ward_id}/staffexcept")
+async def get_staff_list(request: Request,ward_id: int):    
+    db=SessionLocal()
+    bearerToken = request.headers.get("Authorization")
+    if not bearerToken:
+        return JSONResponse(
+				status_code=403,
+				content={
+					"error": True,
+					"message": "未登入系統，拒絕存取"})
+
+    if bearerToken:
+        token = bearerToken.split(" ")
+        payload = jwt.decode(token[1], os.getenv("SECRET_PASSWORD"), algorithms=["HS256"])
+
+    try:
+        all_staff_query = db.query(member)
+
+        in_ward_query = db.query(member).join(member_ward, member.id == member_ward.staff_id).filter(member_ward.ward_id == ward_id)
+
+        results = all_staff_query.except_(in_ward_query).order_by(member.employee_num.asc()).all()
+
+        data_list = []
+        for user in results:
+            data_list.append({
+                "id": user.id,
+                "employee_num": user.employee_num,
+                "full_name": user.full_name
+            })
+      
+        return {"data": data_list}
     except HTTPException:
             raise HTTPException(
 				status_code=500,
@@ -363,31 +406,42 @@ async def insertstaff(request: Request,ward_id: int, body: dict = Body(...)):
         token = bearerToken.split(" ")
 
         payload = jwt.decode(token[1], os.getenv("SECRET_PASSWORD"), algorithms=["HS256"])
-        id = payload["id"]
     
     staffid=body["staffid"]
-    name=body["name"]
-    role=body["role"]
     level=body["level"]
-    ward=body["ward"]
-    joindate=body["joindate"]
-    password=body["staffid"]
 
-    joindate=joindate.split('T')[0]
 
     if level == "無職級":
          level= None
 
-    if not all([staffid,name,role,ward,joindate]):
+    if not all([staffid,level,ward_id]):
             return JSONResponse(
                 status_code=400,
                 content={"error": True, "message": "建立失敗，輸入不正確或其他原因"}
             )
 
     try:
-        stafflist = member(employee_num=staffid, full_name=name, password=staffid, role=role, level=level, ward=ward_id, join_date=joindate)
-        db.add(stafflist)
+        existing_relation = db.query(member_ward).filter(
+            member_ward.staff_id == staffid, 
+            member_ward.ward_id == ward_id
+        ).first()
+
+        if existing_relation:
+            return JSONResponse(status_code=400, content={"error": True, "message": "此人員已在該病房群組中"})
+
+        if level == "none" or level == "無職級":
+            level = None
+
+        new_relation = member_ward(
+            staff_id=staffid,
+            ward_id=ward_id,
+            role="Staff_Nurse",
+            level=level)
+        
+        db.add(new_relation)
         db.commit()
+        cache_key = f"memeber_list:ward:{ward_id}"
+        r.delete(cache_key)
         return{"ok":True}
     
     except jwt.PyJWTError:
@@ -395,7 +449,6 @@ async def insertstaff(request: Request,ward_id: int, body: dict = Body(...)):
             status_code=403,
             content={"error": True, "message": "未登入系統，拒絕存取"}
         )
-    
     except Exception as e:
             return JSONResponse(
 				status_code=500,
@@ -423,14 +476,17 @@ async def deletestaff(request:Request,ward_id: int, body: dict = Body(...)):
     if bearerToken:
         token = bearerToken.split(" ")
         payload = jwt.decode(token[1], os.getenv("SECRET_PASSWORD"), algorithms=["HS256"])
-        id = payload["id"]
     
     staffid=body["staffid"]
 
     try:
-        target = db.query(member).filter(member.id == staffid).first()
+        target = db.query(member_ward).filter(member_ward.ward_id == ward_id, member_ward.staff_id == staffid).first()
         db.delete(target)
         db.commit()
+        
+        cache_key = f"memeber_list:ward:{ward_id}"
+        r.delete(cache_key)
+
         return {"ok":True}
         
     except jwt.PyJWTError: 
@@ -456,25 +512,21 @@ async def editstaff(request:Request,ward_id: int, body: dict = Body(...)):
     if bearerToken:
         token = bearerToken.split(" ")
         payload = jwt.decode(token[1], os.getenv("SECRET_PASSWORD"), algorithms=["HS256"])
-        id = payload["id"]
-
+        
     try:
         staffid=body["staffid"]
-        name=body["name"]
-        role=body["role"]
         level=body["level"]
-        ward=body["ward"]
-        joindate=body["joindate"]
         if level == "無職級":
              level = None
         
-        target = db.query(member).filter(member.id == staffid).first()
-        target.full_name = name
-        target.role = role
-        target.level = level
-        target.ward = ward
-        target.join_date = joindate
+        target = db.query(member_ward).filter(member_ward.ward_id == ward_id, member_ward.staff_id == staffid).first()
+        if level == "none" or level == "無職級":
+            target.level = None
+        else:
+            target.level = level
         db.commit()
+
+        r.delete(f"memeber_list:ward:{ward_id}")
         return {"ok": True}
     
     except jwt.PyJWTError:
