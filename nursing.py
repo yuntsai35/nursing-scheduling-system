@@ -279,6 +279,10 @@ async def deletemember_ward(request:Request, body: dict = Body(...)):
 
     try:
         db.query(member_ward).filter(member_ward.ward_id == ward_id).delete()
+        db.query(settingtime).filter(settingtime.ward_id == ward_id).delete()
+        db.query(scheduled_member).filter(scheduled_member.ward_id == ward_id).delete()
+        db.query(staff_number_schedule).filter(staff_number_schedule.ward_id == ward_id).delete()
+        db.query(finalscheduletable).filter(finalscheduletable.ward_id == ward_id).delete()
         db.query(ward).filter(ward.id == ward_id).delete()
         db.commit()
         return {"ok":True}

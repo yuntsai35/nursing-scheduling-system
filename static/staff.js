@@ -263,3 +263,27 @@ function closeAddPage() {
     overlay.style.display = 'none';   
     document.body.style.overflow = 'auto';
 }
+
+
+async function deleteWard() {
+    const ward_id = sessionStorage.getItem("current_ward_id");
+    if (!confirm("確定要刪除此病房嗎？")) return;
+
+    const token = localStorage.getItem("token");
+    const response = await fetch("/api/member_ward", {
+        method: "DELETE",
+        headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ "ward_id": ward_id })
+    });
+
+    if (response.ok) {
+        alert("刪除成功");
+        window.location.href = "/index";
+    } else {
+        const result = await response.json();
+        alert(result.message);
+    }
+}
