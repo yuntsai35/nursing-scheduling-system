@@ -14,7 +14,7 @@
 <body>
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
   <div class="container-fluid">
-    <a class="navbar-brand" href="/index" style="display:flex; align-items: center;"><span class="material-symbols-outlined" style="margin-right: 10px;">blood_pressure</span> 護理人員排班系統</a>
+    <a class="navbar-brand" href="/" style="display:flex; align-items: center;"><span class="material-symbols-outlined" style="margin-right: 10px;">blood_pressure</span> Medi-Planner</a>
     <div class="collapse navbar-collapse" id="navbarText">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
       </ul>
@@ -22,31 +22,64 @@
     </div>
   </div>
 </nav>
-
+<div class="gradient-section">
+    <h1 style="margin-bottom: 30px; font-weight: bold;">Medi-Planner 護理排班系統</h1>
+    
+    <ul class="feature-list-clean">
+        <li class="text">整合人員管理與員工預假功能。<br>透過客製化設定一鍵生成班表，大幅縮減行政耗時。</li>
+    </ul>
+    <span class="navbar-Text" id="user-menu" style="display:flex; align-items: center; cursor: pointer;" onclick="location.href='/login'">立即開始</span>
+</div>
 <main>
-  <div class="main-container">
-        <div class="container-add" id="staffmanagement" onclick="openAddPage()">
-            <span class="material-symbols-outlined" id="icon">group_add</span>
-            <div>
-            <div class="container-bottom-text" id="generalstaff" style="display:flex; align-items: center;font-weight: bold;">建立新護理師排班群組</div>
-            <div class="container-bottom-explain">新增一個病房、單位或護理團隊</div>
-            </div>
-        </div>
-  </div>
-    <div class="main-input">
-      <div class="main-input-container">
-        <div class="main-input-title" style="font-weight: bold; margin-bottom: 20px;font-size: 20px;">新增護理師排班群組</div>
-        <div class="main-input-group" style="margin-bottom: 20px;">
-        <div class="main-input-subtitle">病房名:</div>
-        <input class="addward" placeholder="請輸入病房群組名">
-        </div>
-        <div class="main-input-hint" style="margin-bottom: 10px;"></div>
-        <div style="display: flex;">
-        <button type="button" class="btn btn-success" id="insert-btn" style="margin-right: 10px;" onclick="addWard()">新增群組</button>
-        <button type="button" class="btn btn-danger" onclick="closeAddPage()">關閉</button>
-        </div>
-      </div>
+<div class="subtitle">主要核心功能</div>
+<div class="subtitle-text">簡單幾步驟完成排班!</div>
+<div class="feature-row">
+    <div class="video-section">
+        <video controls>
+            <source src="/static/員工管理.mp4" type="video/mp4">
+            您的瀏覽器不支援 HTML5 影片播放。
+        </video>
     </div>
+    <div class="text-section">
+        <h3>人員管理</h3>
+        <p>輕鬆管理群組內人員的資料與職級分類，可進行新增、編輯及刪除。</p>
+    </div>
+</div>
+
+<div class="feature-row">
+    <div class="text-section">
+        <h3>排班設定</h3>
+        <p>彈性設定排班時間、每周休假天數、每班人數、及包班人員選擇，使班表具有靈活性。</p>
+    </div>
+    <div class="video-section">
+        <video controls>
+            <source src="/static/設定.mp4" type="video/mp4">
+        </video>
+    </div>
+</div>
+<div class="feature-row">
+    <div class="video-section">
+        <video controls>
+            <source src="/static/預假功能.mp4" type="video/mp4">
+        </video>
+    </div>
+    <div class="text-section">
+        <h3>預先請假</h3>
+        <p>整合員工預假申請，自動將同仁意願納入考量，平衡同仁休假需求與臨床運作人力，提升團隊滿意度。</p>
+    </div>
+</div>
+<div class="feature-row">
+    <div class="text-section">
+        <h3>一鍵排班</h3>
+        <p>數秒內產出公平且無衝突的護理班表，大幅縮減傳統排班的行政耗時，精準提升管理效率。</p>
+    </div>
+    <div class="video-section">
+        <video controls>
+            <source src="/static/一鍵產生.mp4" type="video/mp4">
+        </video>
+    </div>
+</div>
+  
 </main>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 <script src="/static/homepage.js"></script>
