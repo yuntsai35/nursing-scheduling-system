@@ -58,6 +58,11 @@ let nightChoicesInstance;
 let midnightChoicesInstance;
 
 document.addEventListener('DOMContentLoaded', function() {
+    dayChoicesInstance = new Choices('#day-staff-choices', {
+        removeItemButton: true,
+        maxItemCount: 2, 
+        placeholderValue: '請選擇白班包班人員'
+    });
     nightChoicesInstance = new Choices('#night-staff-choices', {
         removeItemButton: true,
         maxItemCount: 2, 
@@ -94,6 +99,7 @@ async function getStaffDataNight() {
         }));
 
         // 將過濾後的人員名單餵給兩個實例
+        dayChoicesInstance.setChoices(staffChoices, 'value', 'label', true);
         nightChoicesInstance.setChoices(staffChoices, 'value', 'label', true);
         midnightChoicesInstance.setChoices(staffChoices, 'value', 'label', true);
 
@@ -101,6 +107,7 @@ async function getStaffDataNight() {
         const step3Cache = sessionStorage.getItem("settingstaffnumber_step3");
         if (step3Cache) {
             const data = JSON.parse(step3Cache);
+            if (data.multi_selector) dayChoicesInstance.setChoiceByValue(data.multi_selector_day);
             if (data.multi_selector) nightChoicesInstance.setChoiceByValue(data.multi_selector);
             if (data.multi_selector_midnight) midnightChoicesInstance.setChoiceByValue(data.multi_selector_midnight);
         }
@@ -117,13 +124,15 @@ async function saveSettingmember() {
     const required_midnightshift = document.getElementById("required_midnightshift").value;
 
     // 從 Choices.js 實例取得選中的人員陣列
+    const selectedDayStaff = dayChoicesInstance.getValue(true);
     const selectedNightStaff = nightChoicesInstance.getValue(true);
     const selectedMidnightStaff = midnightChoicesInstance.getValue(true);
 
-    const duplicateStaff = selectedNightStaff.filter(staff => selectedMidnightStaff.includes(staff));
+    const allSelectedStaff = [...selectedDayStaff, ...selectedNightStaff, ...selectedMidnightStaff];
+    const hasDuplicate = new Set(allSelectedStaff).size !== allSelectedStaff.length;
 
-    if(duplicateStaff.length>0){
-        alert("大小夜包班人員不可出現重複");
+    if(hasDuplicate){
+        alert("白班、大小夜包班人員不可出現重複");
         return;
     }
 
@@ -131,6 +140,7 @@ async function saveSettingmember() {
         "required_dayshift": required_dayshift,
         "required_nightshift": required_nightshift,
         "required_midnightshift": required_midnightshift,
+        "multi_selector_day": selectedDayStaff,
         "multi_selector": selectedNightStaff,
         "multi_selector_midnight": selectedMidnightStaff
     };

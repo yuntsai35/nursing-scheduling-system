@@ -79,6 +79,7 @@ function renderPreview() {
     // 包班人員
     const packageContainer = document.querySelectorAll(".container-setting")[1]; 
     packageContainer.innerHTML = `
+        <div>白班包班：${step3.multi_selector_day.join(", ") || "無"}</div>
         <div>小夜包班：${step3.multi_selector.join(", ") || "無"}</div>
         <div>大夜包班：${step3.multi_selector_midnight.join(", ") || "無"}</div>
     `;
@@ -120,6 +121,7 @@ async function saveSettingmember() {
         "required_dayshift": step3.required_dayshift,
         "required_nightshift": step3.required_nightshift,
         "required_mignightshift": step3.required_midnightshift, 
+        "multi_selector_day": step3.multi_selector_day,
         "multi_selector": step3.multi_selector,
         "multi_selector_midnight": step3.multi_selector_midnight
     };

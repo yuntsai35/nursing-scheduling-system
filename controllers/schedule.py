@@ -48,7 +48,8 @@ async def updatesetting(request:Request, ward_id: int, body: dict = Body(...)):
         required_dayshift=int(body["required_dayshift"])
         required_nightshift=int(body["required_nightshift"])
         required_mignightshift=int(body["required_mignightshift"])
-
+        
+        selectedDayStaff=",".join(body["multi_selector_day"])
         selectedNightStaff=",".join(body["multi_selector"])
         selectedMidnightStaff=",".join(body["multi_selector_midnight"])
         
@@ -74,7 +75,7 @@ async def updatesetting(request:Request, ward_id: int, body: dict = Body(...)):
             db.add(new_record)
         
         #settingstaffnumber
-        shifting_group=[("day",required_dayshift,"",ward_id),("night",required_nightshift,selectedNightStaff,ward_id),("midnight", required_mignightshift, selectedMidnightStaff,ward_id)]
+        shifting_group=[("day",required_dayshift,selectedDayStaff,ward_id),("night",required_nightshift,selectedNightStaff,ward_id),("midnight", required_mignightshift, selectedMidnightStaff,ward_id)]
 
         for data in shifting_group:     
              new_record = staff_number_schedule(shift=data[0],shift_staff_number=data[1],staff_id=data[2],ward_id=data[3])
@@ -271,6 +272,15 @@ async def final_scheduling(request: Request,ward_id: int, date: str = None):
         for n in all_nurses:
             nurse_name = members[n][1] 
             name_to_index[nurse_name] = n
+
+        #包白班
+        if staff_list_day and staff_list_day[0]:
+            staff_list_day=staff_list_day[0].split(',')
+            for name_day in staff_list_day:
+                ind_day=name_to_index.get(name_day)
+                if ind_day is not None:
+                    for d in all_days:
+                        shift_requests[ind_day][d][1] = 1    
 
         #包小夜
         if staff_list_night and staff_list_night[0]:

@@ -50,8 +50,9 @@ async function getReserveMonth() {
 
         result.forEach(item => {
             const newDiv = document.createElement("div");
-            newDiv.textContent = item+"護理人力預假班表";
+            newDiv.textContent = item+"月 護理人力預假班表";
             newDiv.className = "date-card";
+            newDiv.style.cursor="pointer";
             newDiv.onclick = function() {
                 reservebreak(item);
             };
