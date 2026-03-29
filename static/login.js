@@ -84,9 +84,7 @@ async function checkLoginStatus() {
     if (response.ok && result.data !== null) {
          window.location.href = "/index";
 
-    } else {
-        window.location.href = "/login";
-    }
+    } 
 }
 
 function showsignup() {
@@ -104,3 +102,11 @@ function showlogin() {
     signup.classList.add("is-hidden");
     login.classList.remove("is-hidden");
 }
+
+document.addEventListener("DOMContentLoaded", function() {
+    const token = localStorage.getItem("token");
+    
+    if (token) {
+        checkLoginStatus();
+    }
+});
