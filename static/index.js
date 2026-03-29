@@ -1,7 +1,7 @@
 function logout() {
     localStorage.removeItem("token");
     sessionStorage.clear();
-    window.location.href = "/";
+    window.location.href = "/login";
 }
 
 async function checkLoginStatus() {
@@ -14,7 +14,7 @@ async function checkLoginStatus() {
         }
     });
     if (!token) {
-        window.location.href = "/";
+        window.location.href = "/login";
         return;
     }
 
@@ -24,7 +24,7 @@ async function checkLoginStatus() {
       document.querySelector("#username").textContent = result.data.full_name;
       
     } else {
-      window.location.href = "/";
+      window.location.href = "/login";
     }
 }
 window.addEventListener("load", checkLoginStatus);
@@ -49,7 +49,7 @@ async function addWard() {
     const addward=document.querySelector(".addward").value;
     const hint=document.querySelector(".main-input-hint");
     if (!token) {
-        window.location.href = "/";
+        window.location.href = "/login";
         return;
     }
 
@@ -84,7 +84,7 @@ async function getmember_ward() {
         }
     });
     if (!token) {
-        window.location.href = "/";
+        window.location.href = "/login";
         return;
     }
 
@@ -122,7 +122,7 @@ async function getmember_ward() {
         });
 
     } else {
-      window.location.href = "/";
+      window.location.href = "/login";
     }
 }
 getmember_ward();

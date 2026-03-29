@@ -85,7 +85,7 @@ async function checkLoginStatus() {
          window.location.href = "/index";
 
     } else {
-        window.location.href = "/";
+        window.location.href = "/login";
     }
 }
 

@@ -1,7 +1,7 @@
 function logout() {
     localStorage.removeItem("token");
     sessionStorage.clear();
-    window.location.href = "/";
+    window.location.href = "/login";
 }
 
 async function checkLoginStatus() {
@@ -29,7 +29,7 @@ async function checkLoginStatus() {
         }
       
     } else {
-      window.location.href = "/";
+      window.location.href = "/login";
     }
 }
 window.addEventListener("load", checkLoginStatus);

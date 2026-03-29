@@ -32,8 +32,10 @@ app.include_router(ward_controller.router)
 app.include_router(schedule.router)
 
 
-
 @app.get("/", include_in_schema=False)
+async def homepage(request: Request):
+	return FileResponse("./static/homepage.html", media_type="text/html")
+@app.get("/login", include_in_schema=False)
 async def login(request: Request):
 	return FileResponse("./static/login.html", media_type="text/html")
 @app.get("/index", include_in_schema=False)

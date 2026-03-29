@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Chiron+GoRound+TC:wght@200..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/index.css">
+    <link rel="stylesheet" href="/static/homepage.css">
     <title>main</title>
 </head>
 <body>
@@ -18,17 +18,10 @@
     <div class="collapse navbar-collapse" id="navbarText">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
       </ul>
-      <span class="navbar-Text" id="user-menu" style="display:flex; align-items: center; cursor: pointer;" onclick="memberdropdown()"><span class="material-symbols-outlined">logout</span><span id="username">Username</span></span>
+      <span class="navbar-Text" id="user-menu" style="display:flex; align-items: center; cursor: pointer;" onclick="location.href='/login'">登入</span>
     </div>
   </div>
 </nav>
-<span class="memberdropdown" style="display:flex; align-items: center; position: relative; cursor: pointer;">
-    <div id="user-dropdown" class="user-dropdown-content">
-        <a href="/membership">會員設定</a>
-        <hr>
-        <div onclick="logout()" class="logout-item">登出</div>
-    </div>
-</span>
 
 <main>
   <div class="main-container">
@@ -56,6 +49,6 @@
     </div>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
-<script src="/static/index.js"></script>
+<script src="/static/homepage.js"></script>
 </body>
 </html>

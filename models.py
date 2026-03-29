@@ -94,32 +94,3 @@ class finalscheduletable(Base):
      
 # if not exists,create
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-
-
-
-staff_list = [
-            ("謝0靜", "nur0002", "nur0002"),
-            ("林0雯", "nur0003", "nur0003"),
-            ("李0政", "nur0004", "nur0004"),
-            ("李0庭", "nur0005", "nur0005"),
-            ("朱0茜", "nur0006", "nur0006"),
-            ("賴0珍", "nur0007", "nur0007"),
-            ("林0均", "nur0008", "nur0008"),
-            ("楊0閔", "nur0009", "nur0009"),
-            ("譚0慈", "nur0010", "nur0010"),
-            ("張0研", "nur0011", "nur0011"),
-            ("吳0儀", "nur0012", "nur0012"),
-            ("謝0妤", "nur0013", "nur0013"),
-            ("陳0宸", "nur0014", "nur0014"),
-            ("江0芸", "nur0015", "nur0015"),
-            ("張0文", "nur0016", "nur0016"),
-            ("張0翔", "nur0017", "nur0017"),
-            ("朱0碩", "nur0018", "nur0018"),
-            ("王0金", "nur0019", "nur0019"),
-            ("駱0君", "nur0020", "nur0020"),
-            ("謝0欣", "nur0021", "nur0021"),
-            ("廖0婷", "nur0022", "nur0022"),
-            ("楊0萱", "nur0023", "nur0023"),
-            ("謝0洵", "nur0024", "nur0024"),
-        ]
