@@ -42,6 +42,7 @@ jobs:
           script_stop: true
           script: |
             # 停止舊容器並刪除
+            docker rm -f my-app || true
             docker rm -f $(docker ps -q --filter "publish=8000") || true
             # 拉取最新 Image
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/nursing-scheduling-system:latest
