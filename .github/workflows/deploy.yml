@@ -44,7 +44,7 @@ jobs:
             # 停止舊容器並刪除
             docker stop my-app || true
             docker rm my-app || true
-            docker image prune -f
+            docker system prune -a --volumes -f
             # 拉取最新 Image
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/nursing-scheduling-system:latest
             # 啟動新容器
