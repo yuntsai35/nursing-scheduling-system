@@ -13,9 +13,6 @@ This project is designed to save time and reduce the problem of ward scheduling 
 
 ## ✨ Main Features
 
-## 🚀 Key Features
-
-
 * Authentication: Secure login verification using JWT (JSON Web Token).
 * Group Management:
   * Open group creation for all users.
