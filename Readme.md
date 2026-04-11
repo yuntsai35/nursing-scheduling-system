@@ -1,7 +1,4 @@
 # Medi-Planner 護理排班系統
-[繁體中文](#繁體中文) | [English](#english)
-
-<a name="繁體中文"></a>
 
 **Automated Staff Scheduling Website**
 
