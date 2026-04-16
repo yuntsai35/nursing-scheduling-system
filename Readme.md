@@ -32,6 +32,7 @@ This project is designed to save time and reduce the problem of ward scheduling 
 <img width="2866" height="1356" alt="預假功能" src="https://github.com/user-attachments/assets/d0def4a0-001a-49fb-92ba-fc242b447629" />
 
 * Auto-Scheduling: One-click roster generation optimized by Google OR-Tools.
+<img width="948" height="452" alt="一鍵產生-降維" src="https://github.com/user-attachments/assets/06674583-e79c-4feb-8812-40c975a3baf9" />
 
 
 *  The result of the scheduling follows the basic rules:
