@@ -22,15 +22,17 @@ This project is designed to save time and reduce the problem of ward scheduling 
   * Admin: Access to User Management, Auto-Scheduling, Leave Requests, and Final Rosters.
   * User: Access to Leave Requests and Final Rosters.
 * Staff Management: Comprehensive management of ward data and assigned medical personnel.
-<video src="./員工管理.MP4" width="100%" controls></video>
+<img width="2834" height="1360" alt="員工管理" src="https://github.com/user-attachments/assets/d6481976-0026-4478-839f-0ee35f76351d" />
+
 
 * Scheduling Rules: Configurable staffing requirements and shift rules for daily operations.
-<video src="./設定.MP4" width="100%" controls></video>
+<img width="2860" height="1356" alt="設定" src="https://github.com/user-attachments/assets/b327cee1-c804-4dee-b0d1-89f35fd92916" />
+
 * Leave Requests: Online system for staff to submit pre-scheduled leave or time-off requests.
-<video src="./預假功能.MP4" width="100%" controls></video>
+<img width="2866" height="1356" alt="預假功能" src="https://github.com/user-attachments/assets/d0def4a0-001a-49fb-92ba-fc242b447629" />
+
 * Auto-Scheduling: One-click roster generation optimized by Google OR-Tools.
 
-<video src="./一鍵產生.MP4" width="100%" controls></video>
 
 *  The result of the scheduling follows the basic rules:
    *  Balancing the total number of rest days across all staff members
